@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sifath Gates Lab</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eef2f8;--grid:#dbe3f0;--card:#fff;--ink:#14203a;--mute:#6f7b98;--line:#d3dbea;--off:#c3cbdf;--acc:#3b5bfd;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1424;--grid:#18203a;--card:#151d34;--ink:#eaf0ff;--mute:#8c98bb;--line:#27324f;--off:#33405f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1424;--grid:#18203a;--card:#151d34;--ink:#eaf0ff;--mute:#8c98bb;--line:#27324f;--off:#33405f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+.wrap{max-width:1240px;margin:0 auto;padding:16px 16px 48px}
+h1{margin:28px 0 4px;font:700 clamp(2rem,6vw,3.2rem)/1.05 Georgia,"Iowan Old Style",serif;letter-spacing:-.02em}
+.sub{margin:0;color:var(--mute);max-width:60ch}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 18px}
+nav a{padding:8px 18px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:700;transition:transform .2s,background .2s}
+nav a:hover{transform:translateY(-2px);border-color:var(--acc)}
+nav a.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px 20px}
+.hero{margin-bottom:16px;border-left:8px solid var(--acc)}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{margin:0 0 10px;font:700 1.15rem Georgia,"Iowan Old Style",serif}
+.hero h2{font-size:1.7rem;margin:0}
+.chip{background:color-mix(in srgb,var(--acc) 15%,transparent);color:var(--acc);padding:2px 12px;border-radius:6px;font-weight:700;font-size:.85rem}
+.hero p{margin:8px 0 0}.note{color:var(--mute)}
+.grid{display:grid;gap:16px;grid-template-columns:1.55fr 1fr}
+.grid>*{min-width:0}.col{display:grid;gap:16px;align-content:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.simcard{border-radius:24px;padding:14px 14px 18px}
+svg{width:100%;height:auto;display:block}
+.wire{fill:none;stroke:var(--off);stroke-width:5;stroke-linecap:round}
+.flow{fill:none;stroke:var(--acc);stroke-width:5;stroke-linecap:round;stroke-dasharray:10 12;opacity:0;transition:opacity .3s}
+.flow.on{opacity:1;animation:fl .55s linear infinite}
+@keyframes fl{to{stroke-dashoffset:-22}}
+.body{fill:var(--card);stroke:var(--acc);stroke-width:4;stroke-linejoin:round;transition:fill .3s}
+.body.on{fill:color-mix(in srgb,var(--acc) 16%,var(--card))}
+.ln{fill:none;stroke:var(--acc);stroke-width:4;stroke-linecap:round}
+.sw{cursor:pointer;outline:none}
+.sw .t{fill:var(--off);transition:fill .25s}.sw.on .t{fill:var(--acc)}
+.sw .k{fill:#fff;transition:transform .25s}.sw.on .k{transform:translateX(24px)}
+.sw:focus-visible .t{stroke:var(--ink);stroke-width:3}
+.lbl{font:700 22px Georgia,serif;fill:var(--ink)}
+.gn{font:700 16px Georgia,serif;fill:var(--mute)}
+.v{font:700 18px ui-monospace,Menlo,Consolas,monospace;fill:var(--mute);transition:fill .3s}.v.on{fill:var(--acc)}
+.bulb{fill:var(--off);transition:fill .3s,filter .3s}
+.bulb.on{fill:#ffd23f;filter:drop-shadow(0 0 14px #ffb300)}
+.ring{fill:none;stroke:#ffb300;stroke-width:3;opacity:0;transform-box:fill-box;transform-origin:center}
+.ring.on{animation:rg 1.4s ease-out infinite}
+@keyframes rg{from{transform:scale(1);opacity:.7}to{transform:scale(1.8);opacity:0}}
+.bv{font:800 26px ui-monospace,Menlo,Consolas,monospace;fill:var(--mute)}.bv.on{fill:#5a3b00}
+.ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 6px 0}
+button{font:inherit;font-weight:700;padding:9px 18px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.hint{color:var(--mute);font-size:.88rem}
+.big{font:800 1.9rem/1.7 ui-monospace,Menlo,Consolas,monospace}
+.ov{display:inline-block;border-top:.09em solid currentColor;padding-top:.1em;line-height:1.1}
+.live{margin:8px 0;padding:12px 16px;border-radius:10px;background:var(--bg);font:700 1.35rem ui-monospace,Menlo,Consolas,monospace}
+.r1{color:var(--acc)}.r0{color:var(--mute)}
+.small{margin:8px 0 0;color:var(--mute);font-size:.92rem}.small b{color:var(--ink);font-family:ui-monospace,Menlo,Consolas,monospace}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--ink);background:var(--bg);padding:1px 7px;border-radius:5px}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;text-align:center;font:600 1.2rem ui-monospace,Menlo,Consolas,monospace}
+th{color:var(--mute);font-size:.85rem;font-weight:600}
+td{padding:10px 0;background:var(--bg);cursor:pointer;transition:background .2s}
+td:first-child{border-radius:10px 0 0 10px}td:last-child{border-radius:0 10px 10px 0;border-left:2px dashed var(--line)}
+td.y1{color:var(--acc);font-weight:800}td.y0{color:var(--mute)}
+tr.on td{background:color-mix(in srgb,var(--acc) 20%,var(--card))}
+[hidden]{display:none!important}
+/* Module 4 */
+#top4 nav{margin:18px 0 0}#top4 nav+nav{margin:8px 0 18px}#top4 .nl{min-width:118px}
+.g4{display:grid;gap:16px;margin-top:16px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+@media (max-width:820px){.g4{grid-template-columns:1fr}#top4 .nl{min-width:0;width:100%}}
+.sv4{overflow-x:auto}#sim4{min-width:600px}
+#sim4 .wire,#sim4 .flow{stroke-width:3}#sim4 .body,#sim4 .ln{stroke-width:2.5}
+#sim4 .lbl{font-size:17px}#sim4 .bv{font-size:17px}#sim4 .sl{font-size:12px}#sim4 .gn{font-size:13px}
+.blk{fill:var(--card);stroke:var(--acc);stroke-width:2.5;transition:fill .3s}.blk.on{fill:color-mix(in srgb,var(--acc) 16%,var(--card))}
+.pin{font:italic 14px Georgia,serif;fill:var(--mute)}
+.bt{font:700 16px Georgia,serif;fill:var(--ink)}
+.end{fill:var(--card);stroke:var(--off);stroke-width:2.5}
+.clk{cursor:pointer;outline:none}.clk rect{fill:var(--card);stroke:var(--acc);stroke-width:2.5;rx:8;transition:fill .2s}
+.clk.on rect{fill:color-mix(in srgb,var(--acc) 40%,var(--card))}.clk path{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.clk:focus-visible rect{stroke:var(--ink);stroke-width:3}
+.wv{fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linejoin:round}.wv.wc{stroke:var(--ink)}
+.wg{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+.wl{font:700 13px ui-monospace,Menlo,Consolas,monospace;fill:var(--mute)}
+.node{fill:var(--card);stroke:var(--off);stroke-width:2.5;transition:fill .3s,stroke .3s}
+.node.on{fill:color-mix(in srgb,var(--acc) 32%,var(--card));stroke:var(--acc)}
+.nt{font:700 13px ui-monospace,Menlo,Consolas,monospace;fill:var(--ink);pointer-events:none}
+.arr{stroke:var(--off);stroke-width:2}.arr.on{stroke:var(--acc)}.ahd{fill:var(--off)}.ahd.on{fill:var(--acc)}
+.tw{overflow-x:auto}
+#tt4{font-size:1rem}#tt4 td{padding:8px 2px}
+#tt4 td:last-child{border-left:0}#tt4 td.sep{border-left:2px dashed var(--line)}
+#tt4.static td,.lg td{cursor:default}.lg{font-size:.95rem}
+#tip4:empty{display:none}#tip4{margin:8px 0 0}
+#eq4 .big{overflow-x:auto}#live4{font-size:1.05rem;line-height:1.75}
+.live .small{font-weight:400}
+.warn{margin:10px 0 0;padding:8px 12px;border-radius:8px;border-left:4px solid #f59f00;background:color-mix(in srgb,#f59f00 15%,transparent);color:var(--ink);font:400 .92rem/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.sum{margin:0;font:700 .98rem/1.5 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{padding:6px 13px}
+.seg button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.mods{display:flex;flex-wrap:wrap;margin:22px 0 0;border-bottom:2px solid var(--line)}
+.mods a{padding:10px 18px;margin-bottom:-2px;font-weight:700;color:var(--mute);text-decoration:none;border-bottom:4px solid transparent}
+.mods a.on{color:var(--ink);border-color:var(--acc)}
+.nl{align-self:center;color:var(--mute);font-weight:600}
+#top2 nav+nav{margin-top:-6px}
+.dot{fill:var(--off);transition:fill .3s}.dot.on{fill:var(--acc)}
+g.gt.on .body{fill:color-mix(in srgb,var(--acc) 16%,var(--card))}
+.sl{font:700 15px ui-monospace,Menlo,Consolas,monospace;fill:var(--mute)}
+#sim2 .wire,#sim2 .flow{stroke-width:3.5}
+.sm{font-size:1.2rem;line-height:2}
+#tt2{font-size:1.05rem}
+.proof{display:grid;gap:12px}
+.stp{display:flex;gap:12px}.stp>div{min-width:0}.stp .m{overflow-x:auto}
+.no{flex:none;width:1.8rem;height:1.8rem;margin-top:.3rem;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:.85rem;display:grid;place-items:center}
+.st{margin:14px 0 0;font:700 1.05rem Georgia,"Iowan Old Style",serif;color:var(--acc)}
+.m{font:600 1.05rem/1.9 ui-monospace,Menlo,Consolas,monospace}
+.why{color:var(--mute);font-size:.92rem}
+.done{margin:16px 0 0;padding:12px 16px;border-radius:10px;background:color-mix(in srgb,var(--acc) 14%,transparent);font-weight:700}
+.wide{margin-top:16px}
+.g2{display:grid;gap:16px;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:start}
+.side{position:sticky;top:calc(12px + env(safe-area-inset-top,0px));display:grid;gap:12px;max-height:calc(100vh - 24px);overflow-y:auto;scrollbar-width:thin}
+@media (max-width:900px){.g2{grid-template-columns:1fr}.side{position:static;max-height:none}}
+#eq2 .big{overflow-x:auto}
+.stp{padding:4px 6px;border-radius:10px}.stp:hover{background:color-mix(in srgb,var(--acc) 9%,transparent)}
+g.gt.hl .body{stroke-width:8;filter:drop-shadow(0 0 5px var(--acc))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.tryit{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 16px;margin-bottom:14px}
+.tg{min-width:84px;font-family:ui-monospace,Menlo,Consolas,monospace}.tg.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.laws{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
+.law{display:grid;gap:8px;align-content:start}.law .chip{justify-self:start}.law .big{overflow-x:auto}
+.lv{font:600 .98rem ui-monospace,Menlo,Consolas,monospace;color:var(--mute)}.lv b{color:var(--acc)}
+.law summary{cursor:pointer;font-weight:700;color:var(--acc)}.law table{font-size:1rem;margin-top:6px}
+.law td{cursor:default}.law td:nth-last-child(2){border-left:2px dashed var(--line)}.law td:last-child{border-left:0}
+@media (max-width:600px){.tryit .hint{display:none}}
+.fade{animation:in .4s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Sifath gates lab</h1>
+<p class="sub"><h3> <p>ভন্ডামি বাদ দিয়া এইখানে মনযোগ দাও। <p> সহজে শিখতে পারবা।
+<p>আমার অনেক পেরা লাগছে এইটা বানাইতে</p>
+<div class="mods" id="mods"><a href="#and">Module 1: Basic gates</a><a href="#uni-nand-not">Module 2: Universal gates</a><a href="#alg-basic">Module 3: Boolean algebra</a><a href="#m4-half-adder">Module 4: Adders, flip-flops &amp; counters</a></div>
+<nav id="nav" aria-label="Gates"></nav>
+<div id="top2" hidden><nav id="nav2a" aria-label="Universal gate"></nav><nav id="nav2b" aria-label="Gate to build"></nav></div>
+<nav id="top3" aria-label="Law groups" hidden></nav>
+<div id="top4" hidden><nav id="nav4a" aria-label="Combinational circuits"></nav><nav id="nav4b" aria-label="Sequential circuits"></nav></div>
+<main id="main">
+<section class="card hero" id="hero"></section>
+<div class="grid">
+<section class="card simcard">
+<svg id="sim" viewBox="0 0 560 240" role="group" aria-label="Gate diagram and simulator"></svg>
+<div class="ctl"><button class="pri play">▶ Auto-play</button><button class="reset">Reset</button><span class="hint">Tap a switch or a truth table row.</span></div>
+</section>
+<div class="col">
+<section class="card" id="eq"></section>
+<section class="card"><h2>Truth table</h2><table id="tt"></table></section>
+</div>
+</div>
+</main>
+<main id="main2" hidden>
+<section class="card hero" id="hero2"></section>
+<div class="g2"><div class="side">
+<section class="card simcard"><svg id="sim2" viewBox="0 0 640 260" role="group" aria-label="Circuit built from universal gates"></svg>
+<div class="ctl"><button class="pri play">▶ Auto-play</button><button class="reset">Reset</button><span class="hint">Tap a switch or a truth table row.</span></div></section>
+<section class="card" id="eq2"></section>
+<section class="card"><h2>Truth table check</h2><table id="tt2"></table></section>
+</div>
+<section class="card" id="proof"></section>
+</div>
+</main>
+<main id="main3" hidden>
+<section class="card hero" id="hero3"></section>
+<section class="card tryit" id="in3"><b>Try it</b><button class="tg" data-v="A"></button><button class="tg" data-v="B"></button><button class="tg" data-v="C"></button><span class="hint">Every law on this page is checked live with these inputs.</span></section>
+<div class="laws" id="laws"></div>
+</main>
+<main id="main4" hidden>
+<section class="card hero" id="hero4"></section>
+<section class="card simcard"><div class="sv4"><svg id="sim4" viewBox="0 0 760 300" role="group" aria-label="Circuit diagram and simulator"></svg></div>
+<div class="ctl"><button class="pri play4">▶ Auto-play</button><button class="clk4">Clock pulse</button><button class="reset4">Reset</button><span class="hint" id="hint4"></span></div>
+<div class="ctl" id="extra4" hidden></div></section>
+<div class="g4"><section class="card" id="eq4"></section><section class="card"><h2 id="tth4">Truth table</h2><div class="tw"><table id="tt4"></table></div><p class="hint" id="tip4"></p><div id="after4"></div></section></div>
+<section class="card wide" id="proof4"></section>
+</main>
+</div>
+<script>
+const $=id=>document.getElementById(id),$$=q=>[...document.querySelectorAll(q)];
+const ov=t=>`<span class="ov">${t}</span>`;
+/* Each gate is one entry. To add a gate later, add an object here. */
+const G=[
+{id:"and",name:"AND",acc:"#3b5bfd",n:2,f:(a,b)=>a&b,form:(a,b)=>`${a} · ${b}`,code:"A && B",
+ d:"M0,0H50A50 50 0 0 1 50,100H0Z",ix:0,
+ text:"Outputs 1 only when every input is 1.",rule:"Any 0 in gives 0 out",
+ note:"Two switches in series: the lamp lights only if both are closed."},
+{id:"or",name:"OR",acc:"#0e9f6e",n:2,f:(a,b)=>a|b,form:(a,b)=>`${a} + ${b}`,code:"A || B",
+ d:"M0,0Q50,0 100,50Q50,100 0,100Q30,50 0,0Z",ix:11,
+ text:"Outputs 1 when at least one input is 1.",rule:"Any 1 in gives 1 out",
+ note:"Two switches in parallel: closing either one lights the lamp."},
+{id:"not",name:"NOT",acc:"#e8590c",n:1,f:a=>1-a,form:a=>ov(a),code:"!A",
+ d:"M0,8L0,92L88,50Z",ix:0,b:94,br:6,
+ text:"Inverts its single input: 0 becomes 1 and 1 becomes 0.",rule:"Output is the opposite",
+ note:"A normally-closed button: press it and the lamp turns off."},
+{id:"nand",name:"NAND",acc:"#6d4aff",n:2,f:(a,b)=>1-(a&b),form:(a,b)=>ov(`${a} · ${b}`),code:"!(A && B)",
+ alt:`${ov("A")} + ${ov("B")}`,d:"M0,0H40A50 50 0 0 1 40,100H0Z",ix:0,b:95.5,br:5.5,
+ text:"AND followed by NOT. Outputs 0 only when every input is 1.",rule:"The opposite of AND",
+ note:"A universal gate: every other gate can be built from NANDs alone."},
+{id:"nor",name:"NOR",acc:"#d6336c",n:2,f:(a,b)=>1-(a|b),form:(a,b)=>ov(`${a} + ${b}`),code:"!(A || B)",
+ alt:`${ov("A")} · ${ov("B")}`,d:"M0,0Q45,0 90,50Q45,100 0,100Q30,50 0,0Z",ix:11,b:95.5,br:5.5,
+ text:"OR followed by NOT. Outputs 1 only when every input is 0.",rule:"The opposite of OR",
+ note:"Also a universal gate: NORs alone can build any circuit."},
+{id:"xor",name:"XOR",acc:"#0c8599",n:2,f:(a,b)=>a^b,form:(a,b)=>`${a} ⊕ ${b}`,code:"A ^ B",
+ alt:`A · ${ov("B")} + ${ov("A")} · B`,d:"M0,0Q50,0 100,50Q50,100 0,100Q30,50 0,0Z",x:"M-12,0Q18,50 -12,100",ix:-1,
+ text:"Outputs 1 when the two inputs are different.",rule:"Different gives 1",
+ note:"Like a staircase light with a switch at each end: flipping either one toggles the lamp."},
+{id:"xnor",name:"XNOR",acc:"#9c36b5",n:2,f:(a,b)=>1-(a^b),form:(a,b)=>ov(`${a} ⊕ ${b}`),code:"!(A ^ B)",
+ alt:`A · B + ${ov("A")} · ${ov("B")}`,d:"M0,0Q45,0 90,50Q45,100 0,100Q30,50 0,0Z",x:"M-12,0Q18,50 -12,100",ix:-1,b:95.5,br:5.5,
+ text:"Outputs 1 when the two inputs are the same.",rule:"Same gives 1",
+ note:"An equality detector: it tells you whether two bits match."}
+];
+let g,s={a:0,b:0},tm=null,i=0,mod=1,kk="nand",ds;
+
+function build(){
+ const ys=g.n==2?[95,145]:[120];let h="";
+ ys.forEach((y,k)=>{const L="AB"[k],d=`M110 ${y}H${220+g.ix}`;
+  h+=`<path class="wire" d="${d}"/><path id="f${L}" class="flow" d="${d}"/>`});
+ h+=`<path class="wire" d="M320 120H456"/><path id="fY" class="flow" d="M320 120H456"/>`;
+ h+=`<g transform="translate(220 70)"><path class="body" d="${g.d}"/>`;
+ if(g.x)h+=`<path class="ln" d="${g.x}"/>`;
+ if(g.b)h+=`<circle class="body" cx="${g.b}" cy="50" r="${g.br}"/>`;
+ h+=`</g><text class="gn" x="270" y="200" text-anchor="middle">${g.name} gate</text>`;
+ ys.forEach((y,k)=>{const L="AB"[k];
+  h+=`<g class="sw" id="s${L}" data-k="${L}" tabindex="0" role="switch" aria-label="Input ${L}" transform="translate(44 ${y-18})"><text class="lbl" x="-14" y="26" text-anchor="middle">${L}</text><rect class="t" width="60" height="36" rx="18"/><circle class="k" cx="18" cy="18" r="13"/></g><text class="v" id="v${L}" x="165" y="${y-10}" text-anchor="middle">0</text>`});
+ h+=`<text class="v" id="vY" x="388" y="110" text-anchor="middle">0</text>`;
+ h+=`<circle id="ring" class="ring" cx="484" cy="120" r="28"/><circle id="bulb" class="bulb" cx="484" cy="120" r="28"/><text id="bv" class="bv" x="484" y="130" text-anchor="middle">0</text><text class="lbl" x="484" y="176" text-anchor="middle">Y</text>`;
+ return h;
+}
+
+function upd(){mod==1?upd1():mod==2&&upd2()}
+function upd1(){
+ const y=g.f(s.a,s.b),on=(id,c)=>$(id).classList.toggle("on",!!c);
+ ["A","B"].slice(0,g.n).forEach(L=>{const v=s[L.toLowerCase()];
+  on("s"+L,v);on("f"+L,v);on("v"+L,v);$("v"+L).textContent=v;$("s"+L).setAttribute("aria-checked",!!v)});
+ on("fY",y);on("vY",y);on("bulb",y);on("ring",y);on("bv",y);
+ $("vY").textContent=y;$("bv").textContent=y;
+ $$("#sim .body").forEach(e=>e.classList.toggle("on",!!y));
+ $("live").innerHTML=`${g.form(s.a,s.b)} = <b class="r${y}">${y}</b>`;
+ $$("#tt tbody tr").forEach(r=>r.classList.toggle("on",+r.dataset.a==s.a&&+r.dataset.b==s.b));
+}
+
+function stop(){clearInterval(tm);tm=null;$$(".play").forEach(x=>x.textContent="▶ Auto-play")}
+function setRow(r){s.a=g.n==1?r:r>>1;s.b=g.n==1?0:r&1;upd()}
+function step(){setRow(i++%(g.n==1?2:4))}
+
+function show(id){
+ chrome(1);g=G.find(x=>x.id==id)||G[0];stop();i=0;s={a:0,b:0};
+ document.documentElement.style.setProperty("--acc",g.acc);
+ $$("#nav a").forEach(a=>a.classList.toggle("on",a.hash=="#"+g.id));
+ $("hero").innerHTML=`<div class="row"><h2>${g.name} gate</h2><span class="chip">${g.rule}</span></div><p>${g.text}</p><p class="note">💡 ${g.note}</p>`;
+ $("eq").innerHTML=`<h2>Equation</h2><div class="big">Y = ${g.form("A","B")}</div><p class="small">With the current inputs:</p><div class="live" id="live"></div>${g.alt?`<p class="small">Also written as <b>Y = ${g.alt}</b></p>`:""}<p class="small">In code: <code>${g.code}</code></p>`;
+ $("sim").innerHTML=build();
+ const rows=g.n==1?[[0,0],[1,0]]:[[0,0],[0,1],[1,0],[1,1]];
+ $("tt").innerHTML=`<thead><tr><th>A</th>${g.n==2?"<th>B</th>":""}<th>Y</th></tr></thead><tbody>`+
+  rows.map(([a,b])=>{const y=g.f(a,b);return `<tr data-a="${a}" data-b="${b}"><td>${a}</td>${g.n==2?`<td>${b}</td>`:""}<td class="y${y}">${y}</td></tr>`}).join("")+"</tbody>";
+ const m=$("main");m.classList.remove("fade");void m.offsetWidth;m.classList.add("fade");
+ upd();
+}
+
+/* Module 2: universal gates. T = circuit layouts by gate count, U = builds and proofs. */
+const o=ov,a_=o("A"),b_=o("B"),KS=.55;
+const NX=o(`${o(`A · ${o("A · B")}`)} · ${o(`B · ${o("A · B")}`)}`),NN=o(`${o(`A + ${o("A + B")}`)} + ${o(`B + ${o("A + B")}`)}`);
+const T4=[[160,103,["A","B"],[135,135]],[270,38,["A","g0"],[135,240]],[270,168,["g0","B"],[240,135]],[380,103,["g1","g2"],[350,350]]];
+const T=[
+ {ay:130,g:[[300,103,["A","A"],[270,270]]]},
+ {ay:65,by:195,g:[[220,103,["A","B"],[190,190]],[400,103,["g0","g0"],[340,340]]]},
+ {ay:67,by:192,g:[[220,40,["A","A"],[190,190]],[220,165,["B","B"],[190,190]],[400,103,["g0","g1"],[340,340]]]},
+ {ay:65,by:195,g:T4},
+ {ay:65,by:195,g:[...T4,[490,103,["g3","g3"],[462,462]]]}];
+/* Detailed proofs: one law per line. A step with empty math is a heading. */
+const H=r=>["",r],q1=`${a_} · ${b_}`,q2=`A · ${b_}`,q3=`${a_} · B`,q4="A · B",DM1="De Morgan: the complement of a product is the sum of the complements.",DM2="De Morgan: the complement of a sum is the product of the complements.",DM3="De Morgan on each factor, then double negation.",DI="Distributive law: multiply out each term.";
+const SNX=[
+ H("Gate 1: X1"),
+ [`X1 = ${o("A · B")}`,"Gate 1 is a NAND with inputs A and B."],
+ [`X1 = ${a_} + ${b_}`,DM1],
+ H("Gate 2: X2"),
+ [`X2 = ${o("A · X1")}`,"Gate 2 is a NAND with inputs A and X1."],
+ [`X2 = ${o(`A · (${a_} + ${b_})`)}`,"Substitute X1."],
+ [`X2 = ${o(`A · ${a_} + A · ${b_}`)}`,"Distributive law: P · (Q + R) = P · Q + P · R."],
+ [`X2 = ${o(`0 + A · ${b_}`)}`,"Complement law: A · Ā = 0."],
+ [`X2 = ${o(q2)}`,"Identity law: 0 + P = P."],
+ [`X2 = ${a_} + ${o(b_)}`,DM1],
+ [`X2 = ${a_} + B`,"Double negation: the complement of B̄ is B."],
+ H("Gate 3: X3"),
+ [`X3 = ${o("B · X1")}`,"Gate 3 is a NAND with inputs B and X1."],
+ [`X3 = ${o(`B · (${a_} + ${b_})`)}`,"Substitute X1."],
+ [`X3 = ${o(`B · ${a_} + B · ${b_}`)}`,"Distributive law: P · (Q + R) = P · Q + P · R."],
+ [`X3 = ${o(`B · ${a_} + 0`)}`,"Complement law: B · B̄ = 0."],
+ [`X3 = ${o(`B · ${a_}`)}`,"Identity law: P + 0 = P."],
+ [`X3 = ${b_} + ${o(a_)}`,DM1],
+ [`X3 = A + ${b_}`,"Double negation, then reorder (commutative law)."],
+ H("Gate 4: X4"),
+ [`X4 = ${o("X2 · X3")}`,"Gate 4 is a NAND with inputs X2 and X3."],
+ [`X4 = ${o(`(${a_} + B)(A + ${b_})`)}`,"Substitute X2 and X3."],
+ [`X4 = ${o(`${a_} · A + ${q1} + B · A + B · ${b_}`)}`,"Distributive law: multiply out each term."],
+ [`X4 = ${o(`0 + ${q1} + ${q4} + 0`)}`,"Complement law: Ā · A = 0 and B · B̄ = 0."],
+ [`X4 = ${o(`${q1} + ${q4}`)}`,"Identity law: P + 0 = P."],
+ [`X4 = ${o(q1)} · ${o(q4)}`,DM2],
+ [`X4 = (A + B)(${a_} + ${b_})`,DM3],
+ [`X4 = A · ${a_} + ${q2} + ${q3} + B · ${b_}`,DI],
+ [`X4 = 0 + ${q2} + ${q3} + 0`,"Complement law: A · Ā = 0 and B · B̄ = 0."],
+ [`X4 = ${q2} + ${q3}`,"Identity law: P + 0 = P."],
+ [`X4 = A ⊕ B`,"This is the definition of XOR: 1 only when A and B differ."],
+ H("Gate 5: Y"),
+ [`Y = ${o("X4 · X4")}`,"Gate 5 is a NAND with both inputs tied to X4."],
+ [`Y = ${o("X4")}`,"Idempotent law: P · P = P."],
+ [`Y = ${o(`${q2} + ${q3}`)}`,"Substitute X4."],
+ [`Y = ${o(q2)} · ${o(q3)}`,DM2],
+ [`Y = (${a_} + B)(A + ${b_})`,DM3],
+ [`Y = ${a_} · A + ${q1} + B · A + B · ${b_}`,DI],
+ [`Y = 0 + ${q1} + ${q4} + 0`,"Complement law: Ā · A = 0 and B · B̄ = 0."],
+ [`Y = ${q4} + ${q1} = ${o("A ⊕ B")}`,"Identity law, then reorder. This is XNOR: 1 only when A and B are the same."]];
+const SNN=[
+ H("Gate 1: X1"),
+ [`X1 = ${o("A + B")}`,"Gate 1 is a NOR with inputs A and B."],
+ [`X1 = ${q1}`,DM2],
+ H("Gate 2: X2"),
+ [`X2 = ${o("A + X1")}`,"Gate 2 is a NOR with inputs A and X1."],
+ [`X2 = ${o(`A + ${q1}`)}`,"Substitute X1."],
+ [`X2 = ${o(`(A + ${a_})(A + ${b_})`)}`,"Distributive law: P + Q · R = (P + Q)(P + R)."],
+ [`X2 = ${o(`1 · (A + ${b_})`)}`,"Complement law: A + Ā = 1."],
+ [`X2 = ${o(`A + ${b_}`)}`,"Identity law: 1 · P = P."],
+ [`X2 = ${a_} · ${o(b_)}`,DM2],
+ [`X2 = ${q3}`,"Double negation: the complement of B̄ is B."],
+ H("Gate 3: X3"),
+ [`X3 = ${o("B + X1")}`,"Gate 3 is a NOR with inputs B and X1."],
+ [`X3 = ${o(`B + ${q1}`)}`,"Substitute X1."],
+ [`X3 = ${o(`(B + ${a_})(B + ${b_})`)}`,"Distributive law: P + Q · R = (P + Q)(P + R)."],
+ [`X3 = ${o(`(B + ${a_}) · 1`)}`,"Complement law: B + B̄ = 1."],
+ [`X3 = ${o(`B + ${a_}`)}`,"Identity law: P · 1 = P."],
+ [`X3 = ${b_} · ${o(a_)}`,DM2],
+ [`X3 = ${q2}`,"Double negation, then reorder (commutative law)."],
+ H("Gate 4: X4"),
+ [`X4 = ${o("X2 + X3")}`,"Gate 4 is a NOR with inputs X2 and X3."],
+ [`X4 = ${o(`${q3} + ${q2}`)}`,"Substitute X2 and X3."],
+ [`X4 = ${o(q3)} · ${o(q2)}`,DM2],
+ [`X4 = (A + ${b_})(${a_} + B)`,DM3],
+ [`X4 = A · ${a_} + ${q4} + ${b_} · ${a_} + ${b_} · B`,DI],
+ [`X4 = 0 + ${q4} + ${q1} + 0`,"Complement law: A · Ā = 0 and B̄ · B = 0, then reorder."],
+ [`X4 = ${q4} + ${q1}`,"Identity law: 0 + P = P."],
+ [`X4 = ${o("A ⊕ B")}`,"This is the definition of XNOR: 1 only when A and B are the same."],
+ H("Gate 5: Y"),
+ [`Y = ${o("X4 + X4")}`,"Gate 5 is a NOR with both inputs tied to X4."],
+ [`Y = ${o("X4")}`,"Idempotent law: P + P = P."],
+ [`Y = ${o(`${q4} + ${q1}`)}`,"Substitute X4."],
+ [`Y = ${o(q4)} · ${o(q1)}`,DM2],
+ [`Y = (${a_} + ${b_})(A + B)`,DM3],
+ [`Y = ${a_} · A + ${q3} + ${b_} · A + ${b_} · B`,DI],
+ [`Y = 0 + ${q3} + ${q2} + 0`,"Complement law: Ā · A = 0 and B̄ · B = 0, then reorder."],
+ [`Y = ${q2} + ${q3} = A ⊕ B`,"Identity law, then reorder. This is XOR: 1 only when A and B differ."]];
+const U={
+nand:{
+ not:{t:0,e:o("A · A"),s:[[`Y = ${o("A · A")}`,"Both inputs of the single NAND are tied to A."],[`Y = ${a_}`,"Idempotent law: A · A = A."]]},
+ and:{t:1,e:o(o("A · B")),s:[[`X1 = ${o("A · B")}`,"The first NAND takes A and B."],[`Y = ${o("X1 · X1")} = ${o("X1")}`,"The second NAND has its inputs tied, so it acts as a NOT (idempotent law)."],[`Y = ${o(o("A · B"))} = A · B`,"Substitute X1, then apply double negation."]]},
+ or:{t:2,e:o(`${o("A · A")} · ${o("B · B")}`),s:[[`X1 = ${o("A · A")} = ${a_}`,"A tied NAND inverts A."],[`X2 = ${o("B · B")} = ${b_}`,"A tied NAND inverts B."],[`Y = ${o("X1 · X2")} = ${o(`${a_} · ${b_}`)}`,"The third NAND combines X1 and X2."],[`Y = ${o(a_)} + ${o(b_)} = A + B`,"De Morgan: the complement of a product is the sum of the complements. Then double negation."]]},
+ xor:{t:3,e:NX,s:[[`X1 = ${o("A · B")} = ${a_} + ${b_}`,"First NAND, then De Morgan."],[`X2 = ${o(`A · (${a_} + ${b_})`)} = ${o(`A · ${a_} + A · ${b_}`)} = ${o(`A · ${b_}`)} = ${a_} + B`,"Distribute, use A · Ā = 0, then De Morgan."],[`X3 = ${o(`B · (${a_} + ${b_})`)} = ${o(`B · ${a_}`)} = A + ${b_}`,"Same steps with B in place of A."],[`Y = ${o("X2 · X3")} = ${o(`(${a_} + B)(A + ${b_})`)}`,"The last NAND combines X2 and X3."],[`(${a_} + B)(A + ${b_}) = ${a_} · A + ${a_} · ${b_} + B · A + B · ${b_} = ${a_} · ${b_} + A · B`,"Expand, then A · Ā = 0 and B · B̄ = 0."],[`Y = ${o(`${a_} · ${b_} + A · B`)} = (A + B)(${a_} + ${b_}) = A · ${b_} + ${a_} · B = A ⊕ B`,"De Morgan, then expand and drop the zero terms."]]},
+ xnor:{t:4,e:`${o("X4 · X4")}, with X4 = ${NX}`,s:SNX}},
+nor:{
+ not:{t:0,e:o("A + A"),s:[[`Y = ${o("A + A")}`,"Both inputs of the single NOR are tied to A."],[`Y = ${a_}`,"Idempotent law: A + A = A."]]},
+ or:{t:1,e:o(o("A + B")),s:[[`X1 = ${o("A + B")}`,"The first NOR takes A and B."],[`Y = ${o("X1 + X1")} = ${o("X1")}`,"The second NOR has its inputs tied, so it acts as a NOT."],[`Y = ${o(o("A + B"))} = A + B`,"Substitute X1, then apply double negation."]]},
+ and:{t:2,e:o(`${o("A + A")} + ${o("B + B")}`),s:[[`X1 = ${o("A + A")} = ${a_}`,"A tied NOR inverts A."],[`X2 = ${o("B + B")} = ${b_}`,"A tied NOR inverts B."],[`Y = ${o("X1 + X2")} = ${o(`${a_} + ${b_}`)}`,"The third NOR combines X1 and X2."],[`Y = ${o(a_)} · ${o(b_)} = A · B`,"De Morgan: the complement of a sum is the product of the complements. Then double negation."]]},
+ xnor:{t:3,e:NN,s:[[`X1 = ${o("A + B")} = ${a_} · ${b_}`,"First NOR, then De Morgan."],[`X2 = ${o(`A + ${a_} · ${b_}`)} = ${o(`(A + ${a_})(A + ${b_})`)} = ${o(`A + ${b_}`)} = ${a_} · B`,"Distributive law, A + Ā = 1, then De Morgan."],[`X3 = ${o(`B + ${a_} · ${b_}`)} = ${o(`(B + ${a_})(B + ${b_})`)} = ${o(`${a_} + B`)} = A · ${b_}`,"Same steps with B in place of A."],[`Y = ${o("X2 + X3")} = ${o(`${a_} · B + A · ${b_}`)}`,"The last NOR combines X2 and X3."],[`Y = (A + ${b_})(${a_} + B) = A · B + ${a_} · ${b_} = ${o("A ⊕ B")}`,"De Morgan, then expand and drop A · Ā = 0 and B · B̄ = 0."]]},
+ xor:{t:4,e:`${o("X4 + X4")}, with X4 = ${NN}`,s:SNN}}};
+/* Detailed proofs for every build. ops() writes the NOT / 2-gate / 3-gate proofs for either universal gate. */
+const ops=(p,d,N,DM,n2,n3)=>{const I=`Idempotent law: P ${p} P = P.`;return{
+ not:[H("Gate 1: Y"),[`Y = ${o(`A ${p} A`)}`,`The ${N} has both inputs tied to A, so both of its inputs carry the same signal.`],[`Y = ${a_}`,`${I} The gate now simply complements A.`],[`Y = ${a_}`,"This is NOT: 0 becomes 1 and 1 becomes 0."]],
+ two:[H("Gate 1: X1"),[`X1 = ${o(`A ${p} B`)}`,`Gate 1 is a ${N} with inputs A and B.`],H("Gate 2: Y"),[`Y = ${o(`X1 ${p} X1`)}`,`Gate 2 is a ${N} with both inputs tied to X1.`],[`Y = ${o("X1")}`,I],[`Y = ${o(o(`A ${p} B`))}`,"Substitute X1 from Gate 1."],[`Y = A ${p} B`,`Double negation: two complements cancel. This is ${n2}.`]],
+ three:[H("Gate 1: X1"),[`X1 = ${o(`A ${p} A`)}`,`Gate 1 is a ${N} with both inputs tied to A.`],[`X1 = ${a_}`,I],H("Gate 2: X2"),[`X2 = ${o(`B ${p} B`)}`,`Gate 2 is a ${N} with both inputs tied to B.`],[`X2 = ${b_}`,I],H("Gate 3: Y"),[`Y = ${o(`X1 ${p} X2`)}`,`Gate 3 is a ${N} with inputs X1 and X2.`],[`Y = ${o(`${a_} ${p} ${b_}`)}`,`Substitute X1 = ${a_} and X2 = ${b_}.`],[`Y = ${o(a_)} ${d} ${o(b_)}`,DM],[`Y = A ${d} B`,`Double negation on each term. This is ${n3}.`]]}};
+const ND=ops("·","+","NAND",DM1,"AND","OR"),NR=ops("+","·","NOR",DM2,"OR","AND");
+const gi=(S,n)=>S.findIndex(x=>!x[0]&&x[1].startsWith("Gate "+n)),rn=S=>S.map(([m,r])=>[m.replace(/X4/g,"Y"),r.replace(/X4/g,"Y")]);
+U.nand.not.s=ND.not;U.nand.and.s=ND.two;U.nand.or.s=ND.three;
+U.nor.not.s=NR.not;U.nor.or.s=NR.two;U.nor.and.s=NR.three;
+U.nand.xor.s=[...SNX.slice(0,gi(SNX,4)),...rn(SNX.slice(gi(SNX,4),gi(SNX,5)))];
+U.nor.xnor.s=[...SNN.slice(0,gi(SNN,4)),...rn(SNN.slice(gi(SNN,4),gi(SNN,5)))];
+function pr(S){let n=0,c="";return S.map(([m,r])=>{if(!m){c=(r.match(/Gate (\d)/)||[])[1]-1;return `<h3 class="st" data-g="${c}">${r}</h3>`}return `<div class="stp" data-g="${c}"><span class="no">${++n}</span><div><div class="m">${m}</div><div class="why">${r}</div></div></div>`}).join("")}
+const hl=v=>$$("#sim2 .gt").forEach(x=>x.classList.toggle("hl",x.dataset.s=="g"+v));
+["mouseover","click"].forEach(t=>$("proof").addEventListener(t,e=>{const h=e.target.closest("[data-g]");hl(h?h.dataset.g:"-")}));
+$("proof").addEventListener("mouseleave",()=>hl("-"));
+function ev(a,b){const v={A:a,B:b};T[ds.t].g.forEach(([,,sr],j)=>{const[p,q]=sr.map(z=>v[z]);v["g"+j]=kk=="nand"?1-(p&q):1-(p|q)});return v}
+function build2(){
+ const d=T[ds.t],gk=G.find(x=>x.id==kk),last=d.g.length-1,P={A:[110,d.ay],B:[110,d.by]},C={};let w="",h="";
+ d.g.forEach(([x,y],j)=>P["g"+j]=[x+55,y+27.5]);
+ d.g.forEach(([x,y,sr,mx])=>sr.forEach((z,p)=>{const[sx,sy]=P[z],pa=`M${sx} ${sy}H${mx[p]}V${y+(p?41.25:13.75)}H${x+gk.ix*KS}`;
+  w+=`<path class="wire" d="${pa}"/><path class="flow" data-s="${z}" d="${pa}"/>`;(C[z]=C[z]||[]).push(mx[p])}));
+ const[lx,ly]=P["g"+last],po=`M${lx} ${ly}H573`;
+ w+=`<path class="wire" d="${po}"/><path class="flow" data-s="g${last}" d="${po}"/>`;
+ for(const z in C)if(C[z].length>1)w+=`<circle class="dot" data-s="${z}" cx="${C[z][0]}" cy="${P[z][1]}" r="4.5"/>`;
+ d.g.forEach(([x,y],j)=>{h+=`<g class="gt" data-s="g${j}" transform="translate(${x} ${y}) scale(${KS})"><path class="body" d="${gk.d}"/><circle class="body" cx="${gk.b}" cy="50" r="${gk.br}"/></g>`;
+  if(j<last)h+=`<text class="sl" data-l="${j}" x="${x+28}" y="${y-6}" text-anchor="middle"></text>`});
+ (d.by?["A","B"]:["A"]).forEach(L=>h+=`<g class="sw" data-k="${L}" tabindex="0" role="switch" aria-label="Input ${L}" transform="translate(44 ${P[L][1]-18})"><text class="lbl" x="-14" y="26" text-anchor="middle">${L}</text><rect class="t" width="60" height="36" rx="18"/><circle class="k" cx="18" cy="18" r="13"/></g>`);
+ h+=`<circle class="ring" cx="595" cy="${ly}" r="26"/><circle class="bulb" cx="595" cy="${ly}" r="26"/><text class="bv" x="595" y="${ly+9}" text-anchor="middle">0</text><text class="lbl" x="595" y="${ly+58}" text-anchor="middle">Y</text>`;
+ return w+h}
+function upd2(){
+ const v=ev(s.a,s.b),y=v["g"+(T[ds.t].g.length-1)],on=(e,c)=>e.classList.toggle("on",!!c);
+ $$("#sim2 [data-s]").forEach(e=>on(e,v[e.dataset.s]));
+ $$("#sim2 .sw").forEach(e=>{on(e,v[e.dataset.k]);e.setAttribute("aria-checked",!!v[e.dataset.k])});
+ $$("#sim2 [data-l]").forEach(e=>e.textContent=`X${+e.dataset.l+1} = ${v["g"+e.dataset.l]}`);
+ $$("#sim2 .bulb,#sim2 .ring,#sim2 .bv").forEach(e=>on(e,y));
+ $("sim2").querySelector(".bv").textContent=y;
+ $("live2").innerHTML=`A = ${s.a}${g.n==2?`, B = ${s.b}`:""} gives Y = <b class="r${y}">${y}</b>`;
+ $$("#tt2 tbody tr").forEach(r=>on(r,+r.dataset.a==s.a&&+r.dataset.b==s.b))}
+function chrome(m){mod=m;stop4();$("top4").hidden=m!=4;$("main4").hidden=m!=4;$("nav").hidden=m!=1;$("main").hidden=m!=1;$("top2").hidden=m!=2;$("main2").hidden=m!=2;$("top3").hidden=m!=3;$("main3").hidden=m!=3;$$("#mods a").forEach((a,j)=>a.classList.toggle("on",j==m-1))}
+function show2(kd,t){
+ kd=kd=="nor"?"nor":"nand";t=U[kd][t]?t:"not";
+ chrome(2);stop();i=0;s={a:0,b:0};kk=kd;g=G.find(x=>x.id==t);ds=U[kd][t];
+ const K=kd.toUpperCase(),n=ds.t+1,N=T[ds.t].g.length;
+ document.documentElement.style.setProperty("--acc",G.find(x=>x.id==kd).acc);
+ $("nav2a").innerHTML=`<span class="nl">Use only</span>`+["nand","nor"].map(x=>`<a href="#uni-${x}-${t}" class="${x==kd?"on":""}">${x.toUpperCase()}</a>`).join("");
+ $("nav2b").innerHTML=`<span class="nl">Build</span>`+["not","and","or","xor","xnor"].map(x=>`<a href="#uni-${kd}-${x}" class="${x==t?"on":""}">${x.toUpperCase()} (${U[kd][x].t+1})</a>`).join("")+`<span class="nl hint">Brackets show how many ${K} gates it needs.</span>`;
+ $("hero2").innerHTML=`<div class="row"><h2>${g.name} built from ${K} gates</h2><span class="chip">${n} ${K} gate${n>1?"s":""}</span></div><p>Any logic circuit can be made from ${K} gates alone, which is why ${K} is called a universal gate.</p><p class="note">💡 Tie both inputs of a ${K} together and it becomes a NOT. Add De Morgan’s laws and every other gate follows.</p>`;
+ $("eq2").innerHTML=`<h2>Equation</h2><p class="small">The ${g.name} gate</p><div class="big">Y = ${g.form("A","B")}</div><p class="small">Built only from ${K}</p><div class="big sm">Y = ${ds.e}</div><div class="live" id="live2"></div>`;
+ $("sim2").innerHTML=build2();
+ const rows=g.n==1?[[0,0],[1,0]]:[[0,0],[0,1],[1,0],[1,1]];
+ $("tt2").innerHTML=`<thead><tr><th>A</th>${g.n==2?"<th>B</th>":""}${Array.from({length:N-1},(_,j)=>`<th>X${j+1}</th>`).join("")}<th>Y</th><th>${g.name}</th></tr></thead><tbody>`+rows.map(([a,b])=>{const v=ev(a,b),y=v["g"+(N-1)];
+  return `<tr data-a="${a}" data-b="${b}"><td>${a}</td>${g.n==2?`<td>${b}</td>`:""}${Array.from({length:N-1},(_,j)=>`<td>${v["g"+j]}</td>`).join("")}<td class="y${y}">${y}</td><td class="y${g.f(a,b)}">${g.f(a,b)}</td></tr>`}).join("")+"</tbody>";
+ $("proof").innerHTML=`<h2>Proof: ${g.name} from ${K} gates</h2><p class="small">Hover or tap any step to light up its gate in the diagram.</p><div class="proof">${pr(ds.s)}</div><p class="done">So Y = ${g.form("A","B")}. The Y column of the truth table matches the ${g.name} column in every row. ✓</p>`;
+ const m=$("main2");m.classList.remove("fade");void m.offsetWidth;m.classList.add("fade");
+ upd()}
+/* Module 3: Boolean algebra. Laws are written as text (! not, * and, + or, ^ xor), then parsed, drawn and checked. */
+function parse(s){let i=0;const t=s.replace(/\s/g,""),
+ bin=(sub,op,ty)=>()=>{let l=sub();while(t[i]==op){i++;l={t:ty,l,r:sub()}}return l},
+ prim=()=>{const c=t[i++];if(c=="!")return{t:"n",x:prim()};if(c=="("){const e=mO();i++;if(e.t!="v"&&e.t!="n")e.p=1;return e}return{t:"v",v:c}},
+ mA=bin(prim,"*","a"),mX=bin(mA,"^","x"),mO=bin(mX,"+","o");
+ return mO()}
+const ev3=(e,v)=>e.t=="v"?(e.v=="0"?0:e.v=="1"?1:v[e.v]):e.t=="n"?1-ev3(e.x,v):e.t=="a"?ev3(e.l,v)&ev3(e.r,v):e.t=="o"?ev3(e.l,v)|ev3(e.r,v):ev3(e.l,v)^ev3(e.r,v);
+const rd=(e,top)=>{const h=e.t=="v"?e.v:e.t=="n"?ov(rd(e.x,1)):rd(e.l)+{a:" \u00b7 ",o:" + ",x:" \u2295 "}[e.t]+rd(e.r);return e.p&&!top?`(${h})`:h};
+const GRP=[["basic","Basic laws"],["order","Order and grouping"],["dist","Distributive"],["simp","Simplification"],["dm","De Morgan"],["xor","XOR and XNOR"],["form","Key formulas"]];
+const LAWS=[
+["basic","Identity law","A+0","A"],["basic","Identity law","A*1","A"],["basic","Null law","A+1","1"],["basic","Null law","A*0","0"],
+["basic","Idempotent law","A+A","A"],["basic","Idempotent law","A*A","A"],["basic","Complement law","A+!A","1"],["basic","Complement law","A*!A","0"],["basic","Double negation","!!A","A"],
+["order","Commutative law","A+B","B+A"],["order","Commutative law","A*B","B*A"],["order","Associative law","(A+B)+C","A+(B+C)"],["order","Associative law","(A*B)*C","A*(B*C)"],
+["dist","Distributive law (AND over OR)","A*(B+C)","A*B+A*C"],["dist","Distributive law (OR over AND)","A+B*C","(A+B)*(A+C)"],
+["simp","Absorption law","A+A*B","A"],["simp","Absorption law","A*(A+B)","A"],["simp","Redundancy law","A+!A*B","A+B"],["simp","Redundancy law","A*(!A+B)","A*B"],
+["simp","Combining law","A*B+A*!B","A"],["simp","Combining law","(A+B)*(A+!B)","A"],["simp","Consensus law","A*B+!A*C+B*C","A*B+!A*C"],["simp","Consensus law","(A+B)*(!A+C)*(B+C)","(A+B)*(!A+C)"],
+["dm","De Morgan\u2019s law (2 inputs)","!(A*B)","!A+!B"],["dm","De Morgan\u2019s law (2 inputs)","!(A+B)","!A*!B"],["dm","De Morgan\u2019s law (3 inputs)","!(A*B*C)","!A+!B+!C"],["dm","De Morgan\u2019s law (3 inputs)","!(A+B+C)","!A*!B*!C"],
+["dm","De Morgan reversed: AND from OR","A*B","!(!A+!B)"],["dm","De Morgan reversed: OR from AND","A+B","!(!A*!B)"],
+["xor","XOR definition","A^B","A*!B+!A*B"],["xor","XNOR definition","!(A^B)","A*B+!A*!B"],["xor","XOR with 0","A^0","A"],["xor","XOR with 1","A^1","!A"],
+["xor","XOR with itself","A^A","0"],["xor","XOR with its complement","A^!A","1"],["xor","Commutative law for XOR","A^B","B^A"],["xor","Associative law for XOR","(A^B)^C","A^(B^C)"],
+["xor","AND distributes over XOR","A*(B^C)","A*B^A*C"],["xor","XNOR from XOR","!(A^B)","!A^B"],["xor","Complementing both inputs","!A^!B","A^B"],["xor","XOR from OR and NAND","A^B","(A+B)*!(A*B)"]];
+const PL=LAWS.map(([g,n,a,b])=>({g,n,l:parse(a),r:parse(b),vars:["A","B","C"].filter(x=>(a+b).includes(x))}));
+const FORM=[
+["Rows in a truth table","2<sup>n</sup>","n inputs give 2<sup>n</sup> rows: 4 rows for 2 inputs, 8 for 3 inputs, 16 for 4 inputs."],
+["Number of different functions","2<sup>2<sup>n</sup></sup>","Two inputs allow 16 different gates. Three inputs allow 256."],
+["Minterm",`m<sub>5</sub> = A \u00b7 ${b_} \u00b7 C`,"The AND of every variable, complemented where the input bit is 0. It is 1 in exactly one row (here ABC = 101)."],
+["Maxterm",`M<sub>5</sub> = ${a_} + B + ${o("C")}`,"The OR of every variable, complemented where the input bit is 1. It is 0 in exactly one row. Each maxterm is the complement of the minterm with the same number."],
+["Sum of products (SOP)","F = \u03a3 m(i<sub>1</sub>, i<sub>2</sub>, \u2026)",`OR together the minterms of the rows where F = 1. Example: XOR = ${q2} + ${q3} = \u03a3 m(1, 2).`],
+["Product of sums (POS)","F = \u03a0 M(j<sub>1</sub>, j<sub>2</sub>, \u2026)",`AND together the maxterms of the rows where F = 0. Example: XOR = (A + B)(${a_} + ${b_}) = \u03a0 M(0, 3).`],
+["Duality principle","\u00b7 \u2194 +    and    0 \u2194 1","Swap AND with OR and 0 with 1 in a true law and you get another true law. Example: A + 0 = A has the dual A \u00b7 1 = A."],
+["Shannon expansion",`F = A \u00b7 F(1, B, C) + ${a_} \u00b7 F(0, B, C)`,"Split any function on one variable. This is the idea behind building logic from multiplexers."],
+["Arithmetic forms",`NOT A = 1 \u2212 A<br>A AND B = A \u00b7 B<br>A OR B = A + B \u2212 A \u00b7 B<br>A XOR B = A + B \u2212 2 \u00b7 A \u00b7 B`,"Treat 0 and 1 as ordinary numbers to turn each gate into a formula."],
+["Arithmetic mod 2","NOT A = 1 + A<br>A AND B = A \u00b7 B<br>A XOR B = A + B","Mod 2, XOR behaves like addition and AND like multiplication. This structure is called a Boolean ring, and it is the same field used in linear algebra over GF(2)."]];
+const s3={A:0,B:0,C:0};
+function card(l,i){const n=l.vars.length,rows=Array.from({length:1<<n},(_,k)=>{const bits=k.toString(2).padStart(n,"0"),v={};l.vars.forEach((x,j)=>v[x]=+bits[j]);const a=ev3(l.l,v),b=ev3(l.r,v);
+  return `<tr data-r="${bits}">${[...bits].map(x=>`<td>${x}</td>`).join("")}<td class="y${a}">${a}</td><td class="y${b}">${b}</td></tr>`}).join("");
+ return `<article class="card law" data-i="${i}"><span class="chip">${l.n}</span><div class="big sm">${rd(l.l,1)} = ${rd(l.r,1)}</div><div class="lv"></div><details><summary>Truth table proof</summary><table><thead><tr>${l.vars.map(x=>`<th>${x}</th>`).join("")}<th>Left</th><th>Right</th></tr></thead><tbody>${rows}</tbody></table></details></article>`}
+function upd3(){
+ $$("#in3 .tg").forEach(b=>{const v=s3[b.dataset.v];b.textContent=`${b.dataset.v} = ${v}`;b.setAttribute("aria-pressed",!!v);b.classList.toggle("on",!!v)});
+ $$("#laws [data-i]").forEach(c=>{const l=PL[c.dataset.i],a=ev3(l.l,s3),b=ev3(l.r,s3),key=l.vars.map(x=>s3[x]).join("");
+  c.querySelector(".lv").innerHTML=`Left side = <b>${a}</b>, right side = <b>${b}</b> ${a==b?"\u2713":"\u2717"}`;
+  c.querySelectorAll("tr[data-r]").forEach(r=>r.classList.toggle("on",r.dataset.r==key))})}
+function show3(gr){
+ gr=GRP.some(x=>x[0]==gr)?gr:"basic";chrome(3);
+ document.documentElement.style.setProperty("--acc","#1c7ed6");
+ $("top3").innerHTML=GRP.map(([k,n])=>`<a href="#alg-${k}" class="${k==gr?"on":""}">${n}${k=="form"?"":` (${PL.filter(x=>x.g==k).length})`}</a>`).join("");
+ $("hero3").innerHTML=`<div class="row"><h2>Boolean algebra: laws and formulas</h2><span class="chip">${PL.length} laws, each checked</span></div><p>These are the laws used in the proofs of Module 2. Use them to simplify expressions and to prove that two circuits do the same job.</p><p class="note">\ud83d\udca1 A law is true when both sides match in every row of the truth table. Set A, B and C below, or open \u201cTruth table proof\u201d on any card to see the full check.</p>`;
+ $("laws").innerHTML=gr=="form"?FORM.map(([t,f,n])=>`<article class="card law"><span class="chip">${t}</span><div class="big sm">${f}</div><p class="small">${n}</p></article>`).join(""):PL.map((l,i)=>l.g==gr?card(l,i):"").join("");
+ const m=$("main3");m.classList.remove("fade");void m.offsetWidth;m.classList.add("fade");
+ upd3()}
+$("in3").addEventListener("click",e=>{const b=e.target.closest(".tg");if(b){s3[b.dataset.v]^=1;upd3()}});
+const stopAll=()=>stop();
+/* ===== Module 4: adders, encoders, decoders, flip-flops, registers and counters ===== */
+const M4mod=(()=>{
+const XO="⊕";
+const O=ov,sb=(a,b)=>`${a}<sub>${b}</sub>`,Cin=sb("C","in"),Cout=sb("C","out"),Qn=sb("Q","n"),Qn1=sb("Q","n+1");
+const SH={and:"M0,0H50A50 50 0 0 1 50,100H0Z",or:"M0,0Q50,0 100,50Q50,100 0,100Q30,50 0,0Z",nand:"M0,0H40A50 50 0 0 1 40,100H0Z",not:"M0,8L0,92L88,50Z"};
+const tl=t=>String(t).replace(/^(.*?[A-Z])(in|out|\d)$/,'$1<tspan dy="4" font-size="70%">$2</tspan>');
+const bin=(n,w=3)=>n.toString(2).padStart(w,"0");
+const fmt=x=>x==="X"||x==="?"?"?":x;
+
+/* ---------- drawing helpers ---------- */
+function gate(type,x,y,h,n,sig,label){
+ const s=h/100,base=type=="xor"?"or":type,bub=type=="nand"||type=="not";
+ const ex=type=="nand"?90*s:type=="not"?88*s:100*s;let ox=x+ex;
+ let svg=`<g class="gt" data-s="${sig}"><g transform="translate(${x} ${y}) scale(${s})"><path class="body" vector-effect="non-scaling-stroke" d="${SH[base]}"/>${type=="xor"?'<path class="ln" vector-effect="non-scaling-stroke" d="M-12,0Q18,50 -12,100"/>':""}</g>`;
+ if(bub){svg+=`<circle class="body" cx="${ox+4}" cy="${y+h/2}" r="4"/>`;ox+=8}
+ svg+="</g>";
+ if(label)svg+=`<text class="gn" x="${x+ex/2}" y="${y+h+16}" text-anchor="middle">${label}</text>`;
+ const pins=[];for(let i=0;i<n;i++){const f=n==1?.5:(i+.5)/n;let px=x;
+  if(type=="or")px=x+60*f*(1-f)*s;if(type=="xor")px=x+(-12+60*f*(1-f))*s;pins.push([+px.toFixed(1),+(y+h*f).toFixed(1)])}
+ return{svg,pins,out:[+ox.toFixed(1),y+h/2]};
+}
+const W=(d,sig)=>`<path class="wire" d="${d}"/><path class="flow" data-s="${sig}" d="${d}"/>`;
+const DOT=(x,y,sig)=>`<circle class="dot" data-s="${sig}" cx="${x}" cy="${y}" r="4"/>`;
+const rt=(x1,y1,mx,x2,y2)=>`M${x1} ${y1}H${mx}V${y2}H${x2}`;
+const swg=(k,x,y,lab)=>`<g class="sw" data-k="${k}" data-s="${k}" tabindex="0" role="switch" aria-label="Input ${lab}" transform="translate(${x} ${y}) scale(.8)"><rect class="t" width="60" height="36"/><rect class="k" x="5" y="5" width="26" height="26"/></g>`;
+/* switch with its right edge at xr, centred on cy, label on the left */
+const SW=(k,xr,cy,lab=k)=>swg(k,xr-48,cy-14.4,lab)+`<text class="lbl" x="${xr-56}" y="${cy+6}" text-anchor="end">${tl(lab)}</text>`;
+/* switch by top-left corner, label above */
+const SWT=(k,x,y,lab=k)=>swg(k,x,y,lab)+`<text class="lbl" x="${x+24}" y="${y-7}" text-anchor="middle">${tl(lab)}</text>`;
+const LAMP=(sig,cx,cy,lab,r=17,pos="r")=>`<circle class="bulb" data-s="${sig}" cx="${cx}" cy="${cy}" r="${r}"/><text class="bv" data-s="${sig}" data-t="${sig}" x="${cx}" y="${cy+6}" text-anchor="middle">0</text>`+
+ (pos=="r"?`<text class="lbl" x="${cx+r+9}" y="${cy+6}">${lab}</text>`:`<text class="lbl" x="${cx}" y="${cy+r+22}" text-anchor="middle">${lab}</text>`);
+const CLKS=(x,y)=>`<g class="clk" data-s="CLK" tabindex="0" role="button" aria-label="Send one clock pulse" transform="translate(${x} ${y})"><rect width="52" height="36"/><path d="M7 27H15V10H27V27H35V10H45"/></g><text class="lbl" x="${x+26}" y="${y-8}" text-anchor="middle">CLK</text>`;
+const VAL=(sig,x,y,p,a="start")=>`<text class="sl" data-t="${sig}" data-p="${p}" x="${x}" y="${y}" text-anchor="${a}">${p}0</text>`;
+const TXT=(x,y,t,c="sl",a="start")=>`<text class="${c}" x="${x}" y="${y}" text-anchor="${a}">${t}</text>`;
+/* flip-flop block, 90 x 90: input pin (x, y+25), clock (x, y+68), Q (x+90, y+25) */
+const FFB=(x,y,nm,inp,neg,sig)=>`<rect class="blk" data-s="${sig}" x="${x}" y="${y}" width="90" height="90"/>`+
+ TXT(x+8,y+30,inp,"pin")+TXT(x+82,y+30,"Q","pin","end")+TXT(x+82,y+73,"Q̄","pin","end")+
+ `<path class="ln" d="M${x} ${y+60}L${x+12} ${y+68}L${x} ${y+76}"/>`+(neg?`<circle class="body" cx="${x-5}" cy="${y+68}" r="5"/>`:"")+
+ `<text class="bt" x="${x+45}" y="${y-9}" text-anchor="middle">${tl(nm)}</text>`;
+/* timing diagram */
+function waves(y0,hist,rows,neg){
+ const x0=90,Wd=40,rh=34,hg=18,n=hist.length,all=[{lab:"CLK",clk:1},...rows];
+ let s=TXT(x0,y0-12,"Timing diagram: each column is one clock period");
+ for(let j=1;j<n;j++){const bx=x0+j*Wd;s+=`<line class="wg" x1="${bx}" y1="${y0}" x2="${bx}" y2="${y0+all.length*rh}"/>`}
+ all.forEach((r,k)=>{const yb=y0+k*rh+hg+6,yt=yb-hg;let d;
+  s+=`<text class="wl" x="${x0-12}" y="${yb}" text-anchor="end">${tl(r.lab)}</text>`;
+  if(r.clk){d=`M${x0} ${yb}`;for(let j=1;j<n;j++){const bx=x0+j*Wd;d+=neg?`H${bx-Wd/2}V${yt}H${bx}V${yb}`:`H${bx}V${yt}H${bx+Wd/2}V${yb}`}d+=`H${x0+n*Wd}`}
+  else{const L=h=>r.f(h)?yt:yb;d=`M${x0} ${L(hist[0])}`;hist.forEach((h,j)=>d+=`V${L(h)}H${x0+(j+1)*Wd}`)}
+  s+=`<path class="wv${r.clk?" wc":""}" d="${d}"/>`});
+ return s;
+}
+const QROWS=[0,1,2].map(j=>({lab:"Q"+j,f:h=>(h>>j)&1}));
+
+/* ---------- state ---------- */
+let T,TID,v={},st,prev,clk=0,tm=null,busy=false,hist=[],last=null,k4=0,log=[],M=8,trail=[],R=[];
+const cur=()=>Object.assign({},v,T.sig(v,st,clk),{CLK:clk});
+
+/* ---------- topics ---------- */
+const C={
+"half-adder":{nav:"Half adder",name:"Half adder",chip:"Adds two bits",ins:["A","B"],outs:["S","C"],h:330,
+ text:"Adds two single bits, A and B, and gives two outputs: the sum bit S and the carry bit C.",
+ note:"In binary 1 + 1 = 10. The 0 stays in this column as S, and the 1 is carried to the next column as C.",
+ draw(){const x=gate("xor",330,50,100,2,"S","XOR"),a=gate("and",330,200,100,2,"C","AND");
+  return W(`M100 75H${x.pins[0][0]}`,"A")+W("M200 75V225H330","A")+W(`M100 125H${x.pins[1][0]}`,"B")+W("M250 125V275H330","B")+DOT(200,75,"A")+DOT(250,125,"B")+
+   x.svg+a.svg+W("M430 100H573","S")+W("M430 250H573","C")+SW("A",100,75)+SW("B",100,125)+LAMP("S",590,100,"S (sum)")+LAMP("C",590,250,"C (carry)")},
+ sig:v=>({S:v.A^v.B,C:v.A&v.B}),
+ eq:`<div class="big">S = A ${XO} B</div><div class="big">C = A · B</div>`,
+ live:s=>`S = ${s.A} ${XO} ${s.B} = <b class="r${s.S}">${s.S}</b><br>C = ${s.A} · ${s.B} = <b class="r${s.C}">${s.C}</b><div class="small">In decimal: ${s.A} + ${s.B} = ${s.A+s.B}, which is <b>${s.C}${s.S}</b> in binary (C then S).</div>`,
+ head:["A","B","S","C"],
+ proof:[[`S = ${O("A")} · B + A · ${O("B")}`,"S is 1 in rows 01 and 10. Write one product term for each of those rows and OR them together (sum of products)."],
+  [`S = A ${XO} B`,"That expression is the definition of XOR: 1 when the inputs are different."],
+  ["C = A · B","C is 1 only in row 11, so a single AND gate gives the carry."],
+  ["A + B = 2·C + S","Check with 1 + 1: C = 1 and S = 0, and 2·1 + 0 = 2. ✓"]],
+ done:`S = A ${XO} B and C = A · B: one XOR gate and one AND gate. A half adder has no carry input, so on its own it can only add the lowest bit of a number.`},
+
+"full-adder":{nav:"Full adder",name:"Full adder",chip:"Adds three bits",ins:["A","B","Cin"],outs:["S","Cout"],h:400,
+ text:`Adds three bits: A, B and a carry ${Cin} coming from the column before. It gives a sum bit S and a carry ${Cout} for the next column.`,
+ note:"A full adder is two half adders plus an OR gate. The OR collects a carry from either half adder.",
+ draw(){const x1=gate("xor",200,50,80,2,"X1","XOR"),x2=gate("xor",400,70,80,2,"S","XOR"),a2=gate("and",400,190,80,2,"X2","AND"),a1=gate("and",400,290,80,2,"X3","AND"),og=gate("or",540,230,80,2,"Cout","OR");
+  return W(`M100 70H${x1.pins[0][0]}`,"A")+W("M140 70V310H400","A")+DOT(140,70,"A")+
+   W(`M100 110H${x1.pins[1][0]}`,"B")+W("M165 110V350H400","B")+DOT(165,110,"B")+
+   W(`M100 170H340V130H${x2.pins[1][0]}`,"Cin")+W("M340 170V250H400","Cin")+DOT(340,170,"Cin")+
+   W(`M280 90H${x2.pins[0][0]}`,"X1")+W("M310 90V210H400","X1")+DOT(310,90,"X1")+
+   W(`M480 230H510V250H${og.pins[0][0]}`,"X2")+W(`M480 330H510V290H${og.pins[1][0]}`,"X3")+
+   x1.svg+x2.svg+a2.svg+a1.svg+og.svg+W("M480 110H673","S")+W("M620 270H673","Cout")+
+   VAL("X1",286,80,"X1 = ")+VAL("X2",486,220,"X2 = ")+VAL("X3",486,348,"X3 = ")+
+   SW("A",100,70)+SW("B",100,110)+SW("Cin",100,170)+LAMP("S",690,110,"S",17,"b")+LAMP("Cout",690,270,tl("Cout"),17,"b")},
+ sig:v=>{const X1=v.A^v.B,X2=X1&v.Cin,X3=v.A&v.B;return{X1,S:X1^v.Cin,X2,X3,Cout:X2|X3}},
+ eq:`<div class="big sm">S = A ${XO} B ${XO} ${Cin}</div><div class="big sm">${Cout} = A · B + ${Cin} · (A ${XO} B)</div><p class="small">Also written as <b>${Cout} = A·B + B·${Cin} + A·${Cin}</b> (1 when at least two inputs are 1).</p>`,
+ live:s=>`X1 = A ${XO} B = ${s.A} ${XO} ${s.B} = ${s.X1}<br>S = X1 ${XO} ${Cin} = ${s.X1} ${XO} ${s.Cin} = <b class="r${s.S}">${s.S}</b><br>${Cout} = ${s.A}·${s.B} + ${s.Cin}·${s.X1} = <b class="r${s.Cout}">${s.Cout}</b><div class="small">In decimal: ${s.A} + ${s.B} + ${s.Cin} = ${s.A+s.B+s.Cin}, which is <b>${s.Cout}${s.S}</b> in binary.</div>`,
+ head:["A","B",Cin,"S",Cout],
+ proof:[[`S = ${O("A")}·${O("B")}·${Cin} + ${O("A")}·B·${O(Cin)} + A·${O("B")}·${O(Cin)} + A·B·${Cin}`,"S is 1 in rows 001, 010, 100 and 111 (minterms 1, 2, 4, 7)."],
+  [`S = ${O(Cin)}·(${O("A")}·B + A·${O("B")}) + ${Cin}·(${O("A")}·${O("B")} + A·B)`,`Group the terms by whether ${Cin} is 0 or 1.`],
+  [`S = ${O(Cin)}·(A ${XO} B) + ${Cin}·${O(`A ${XO} B`)}`,"The first bracket is XOR. The second is XNOR, which is the complement of XOR."],
+  [`S = X1 ${XO} ${Cin} = A ${XO} B ${XO} ${Cin}`,`Call X1 = A ${XO} B. The pattern X̄1·${Cin} + X1·${O(Cin)} is XOR again.`],
+  [`${Cout} = ${O("A")}·B·${Cin} + A·${O("B")}·${Cin} + A·B·${O(Cin)} + A·B·${Cin}`,`${Cout} is 1 in rows 011, 101, 110 and 111 (minterms 3, 5, 6, 7).`],
+  [`${Cout} = ${Cin}·(${O("A")}·B + A·${O("B")}) + A·B·(${O(Cin)} + ${Cin})`,"Group the first two terms and the last two terms."],
+  [`${Cout} = ${Cin}·(A ${XO} B) + A·B = X2 + X3`,`${O(Cin)} + ${Cin} = 1. X2 comes from the second half adder, X3 from the first.`]],
+ done:`S = A ${XO} B ${XO} ${Cin} and ${Cout} = A·B + ${Cin}·(A ${XO} B): two half adders and one OR gate.`},
+
+"encoder":{nav:"Encoder (4 to 2)",name:"Encoder (4 to 2)",chip:"4 inputs, 2-bit code",ins:["D3","D2","D1","D0"],h:290,
+ text:"An encoder turns one active input line into its binary number. With 4 inputs the code needs 2 bits: Y1 Y0.",
+ note:"Only one input should be 1 at a time. Try switching on two and watch the code go wrong.",
+ draw(){const a=gate("or",400,20,80,2,"Y1","OR"),b=gate("or",400,180,80,2,"Y0","OR");
+  return W("M100 70H160","D0")+'<circle class="end" cx="165" cy="70" r="4"/>'+TXT(175,75,"not used")+
+   W(rt(100,120,200,b.pins[0][0],200),"D1")+W(rt(100,170,250,a.pins[0][0],40),"D2")+
+   W(rt(100,220,300,a.pins[1][0],80),"D3")+W(`M300 220V240H${b.pins[1][0]}`,"D3")+DOT(300,220,"D3")+a.svg+b.svg+
+   W("M480 60H543","Y1")+W("M480 220H543","Y0")+["D0","D1","D2","D3"].map((k,j)=>SW(k,100,70+50*j)).join("")+LAMP("Y1",560,60,tl("Y1"))+LAMP("Y0",560,220,tl("Y0"))},
+ sig:v=>({Y1:v.D2|v.D3,Y0:v.D1|v.D3}),
+ eq:`<div class="big">Y1 = D2 + D3</div><div class="big">Y0 = D1 + D3</div>`.replace(/([DY])(\d)/g,"$1<sub>$2</sub>"),
+ live:s=>{const n=s.D0+s.D1+s.D2+s.D3;return `${sb("Y",1)} = ${s.D2} + ${s.D3} = <b class="r${s.Y1}">${s.Y1}</b><br>${sb("Y",0)} = ${s.D1} + ${s.D3} = <b class="r${s.Y0}">${s.Y0}</b><div class="small">Code ${s.Y1}${s.Y0} = ${2*s.Y1+s.Y0}</div>`+
+  (n>1?`<p class="warn">More than one input is 1, so the OR gates mix their codes together. A <b>priority encoder</b> fixes this by letting the highest input win.</p>`:n==0?`<p class="warn">No input is 1, yet the code is 00, the same as for ${sb("D",0)}. Real encoders add a valid output V = D0 + D1 + D2 + D3 to tell these apart.</p>`:"")},
+ head:["D3","D2","D1","D0","Y1","Y0"].map(x=>x.replace(/(\d)/,"<sub>$1</sub>")),outFrom:4,
+ rows:()=>[0,1,2,3].map(k=>{const set={D3:+(k==3),D2:+(k==2),D1:+(k==1),D0:+(k==0)};return{set,cells:[set.D3,set.D2,set.D1,set.D0,k>>1,k&1]}}),
+ proof:[["Exactly one input is 1 at a time","The encoder assumes this. The output is the binary number of that input."],
+  [`${sb("Y",1)} = ${sb("D",2)} + ${sb("D",3)}`,`${sb("Y",1)} is the 2s bit. It is 1 for inputs 2 (10) and 3 (11), so OR those two lines.`],
+  [`${sb("Y",0)} = ${sb("D",1)} + ${sb("D",3)}`,`${sb("Y",0)} is the 1s bit. It is 1 for the odd inputs 1 (01) and 3 (11).`],
+  [`${sb("D",0)} is not used`,`When ${sb("D",0)} = 1 the code is 00, which the OR gates already give when every other input is 0.`]],
+ done:`${sb("Y",1)} = ${sb("D",2)} + ${sb("D",3)} and ${sb("Y",0)} = ${sb("D",1)} + ${sb("D",3)}. An encoder is just a set of OR gates.`},
+
+"encoder-8x3":{nav:"8 to 3 encoder",name:"8 to 3 encoder",chip:"Octal to binary",ins:["D7","D6","D5","D4","D3","D2","D1","D0"],h:360,
+ text:"Eight input lines in, a 3-bit binary code out. When input D<sub>k</sub> is 1, the output Y2 Y1 Y0 is k in binary.",
+ note:"Each output is an OR of the four inputs whose number has a 1 in that bit. A dot marks a connection; crossing wires without a dot are not joined.",
+ draw(){const gs=[["Y2",[4,5,6,7]],["Y1",[2,3,6,7]],["Y0",[1,3,5,7]]],far={};let s="",k=0;
+  const gt=gs.map(([y,ins],j)=>{const g_=gate("or",560,[40,160,260][j],80,4,y);ins.forEach((d,p)=>{const tx=180+30*k++,yi=40+40*d,[px,py]=g_.pins[p];
+   s+=W(`M${tx} ${yi}V${py}H${px}`,"D"+d)+DOT(tx,yi,"D"+d);far[d]=Math.max(far[d]||0,tx)});return g_});
+  let h=W("M100 40H140","D0")+'<circle class="end" cx="145" cy="40" r="4"/>';
+  for(let d=1;d<8;d++)h+=W(`M100 ${40+40*d}H${far[d]}`,"D"+d);
+  return h+s+gt.map(x=>x.svg).join("")+gs.map(([y],j)=>W(`M640 ${[80,200,300][j]}H684`,y)+LAMP(y,700,[80,200,300][j],tl(y),16)).join("")+
+   [0,1,2,3,4,5,6,7].map(d=>SW("D"+d,100,40+40*d)).join("")},
+ sig:v=>({Y2:v.D4|v.D5|v.D6|v.D7,Y1:v.D2|v.D3|v.D6|v.D7,Y0:v.D1|v.D3|v.D5|v.D7}),
+ eq:`<div class="big sm">Y2 = D4 + D5 + D6 + D7<br>Y1 = D2 + D3 + D6 + D7<br>Y0 = D1 + D3 + D5 + D7</div>`.replace(/([DY])(\d)/g,"$1<sub>$2</sub>"),
+ live:s=>{const n=[0,1,2,3,4,5,6,7].reduce((a,d)=>a+s["D"+d],0),c=4*s.Y2+2*s.Y1+s.Y0;
+  return `${sb("Y",2)} = ${s.D4} + ${s.D5} + ${s.D6} + ${s.D7} = <b class="r${s.Y2}">${s.Y2}</b><br>${sb("Y",1)} = ${s.D2} + ${s.D3} + ${s.D6} + ${s.D7} = <b class="r${s.Y1}">${s.Y1}</b><br>${sb("Y",0)} = ${s.D1} + ${s.D3} + ${s.D5} + ${s.D7} = <b class="r${s.Y0}">${s.Y0}</b><div class="small">Code ${s.Y2}${s.Y1}${s.Y0} = ${c}</div>`+
+  (n>1?`<p class="warn">More than one input is 1, so the output is not a valid code. A priority encoder (such as the 74148) would output the highest active input instead.</p>`:n==0?`<p class="warn">No input is 1, but the code reads 000, the same as ${sb("D",0)}. A valid output V fixes this.</p>`:"")},
+ head:["D7","D6","D5","D4","D3","D2","D1","D0","Y2","Y1","Y0"].map(x=>x.replace(/(\d)/,"<sub>$1</sub>")),outFrom:8,
+ rows:()=>[0,1,2,3,4,5,6,7].map(k=>{const set={};for(let d=0;d<8;d++)set["D"+d]=+(d==k);return{set,cells:[7,6,5,4,3,2,1,0].map(d=>set["D"+d]).concat([k>>2,(k>>1)&1,k&1])}}),
+ proof:[["Output = binary number of the active input","Input 5 gives 101, input 6 gives 110, and so on."],
+  [`${sb("Y",2)} = ${sb("D",4)} + ${sb("D",5)} + ${sb("D",6)} + ${sb("D",7)}`,`${sb("Y",2)} is the 4s bit. Inputs 4 to 7 (100 to 111) all have it set.`],
+  [`${sb("Y",1)} = ${sb("D",2)} + ${sb("D",3)} + ${sb("D",6)} + ${sb("D",7)}`,`${sb("Y",1)} is the 2s bit: set in 010, 011, 110 and 111.`],
+  [`${sb("Y",0)} = ${sb("D",1)} + ${sb("D",3)} + ${sb("D",5)} + ${sb("D",7)}`,`${sb("Y",0)} is the 1s bit: set in every odd number.`],
+  [`${sb("D",0)} is not used`,"Input 0 has code 000, so it never needs to switch an output on."]],
+ done:"Three 4-input OR gates. Read each output column of the truth table and OR together the inputs that give a 1."},
+
+"decoder":{nav:"Decoder (2 to 4)",name:"Decoder (2 to 4)",chip:"2-bit code to 4 lines",ins:["A","B"],outs:["Y0","Y1","Y2","Y3"],h:450,
+ text:"A decoder does the opposite of an encoder. It reads a binary number on its inputs and switches on exactly one output line, the one with that number.",
+ note:"Inverters give Ā and B̄. Each AND gate picks one combination of A and B, so each output is one minterm.",
+ draw(){let s="";const rx={A:140,Ab:250,B:300,Bb:390},bot={},terms=[["Ab","Bb"],["Ab","B"],["A","Bb"],["A","B"]];
+  const n1=gate("not",180,35,30,1,"Ab"),n2=gate("not",330,85,30,1,"Bb");
+  const gs=terms.map((t,k)=>{const g_=gate("and",480,140+75*k,60,2,"Y"+k);t.forEach((r,p)=>{const py=g_.pins[p][1];bot[r]=Math.max(bot[r]||0,py)});return g_});
+  gs.forEach((g_,k)=>terms[k].forEach((r,p)=>{const py=g_.pins[p][1];s+=W(`M${rx[r]} ${py}H480`,r)+(py<bot[r]?DOT(rx[r],py,r):"")}));
+  const lab={A:"A",Ab:"Ā",B:"B",Bb:"B̄"};
+  return W("M100 50H180","A")+W(`M140 50V${bot.A}`,"A")+DOT(140,50,"A")+W(`M${n1.out[0]} 50H250V${bot.Ab}`,"Ab")+
+   W("M100 100H330","B")+W(`M300 100V${bot.B}`,"B")+DOT(300,100,"B")+W(`M${n2.out[0]} 100H390V${bot.Bb}`,"Bb")+
+   Object.keys(rx).map(r=>TXT(rx[r],bot[r]+20,lab[r],"pin","middle")).join("")+
+   n1.svg+n2.svg+s+gs.map(g_=>g_.svg).join("")+
+   ["Ā · B̄","Ā · B","A · B̄","A · B"].map((m,k)=>W(`M540 ${170+75*k}H603`,"Y"+k)+LAMP("Y"+k,620,170+75*k,`${tl("Y"+k)} = ${m}`)).join("")+
+   SW("A",100,50)+SW("B",100,100)},
+ sig:v=>{const Ab=1-v.A,Bb=1-v.B;return{Ab,Bb,Y0:Ab&Bb,Y1:Ab&v.B,Y2:v.A&Bb,Y3:v.A&v.B}},
+ eq:`<div class="big sm">Y0 = ${O("A")} · ${O("B")}<br>Y1 = ${O("A")} · B<br>Y2 = A · ${O("B")}<br>Y3 = A · B</div>`.replace(/Y(\d)/g,"Y<sub>$1</sub>"),
+ live:s=>{const k=2*s.A+s.B;return `Input AB = ${s.A}${s.B} = ${k}, so only ${sb("Y",k)} is 1.<br>${sb("Y",k)} = ${["Ā · B̄","Ā · B","A · B̄","A · B"][k]} = ${[[1-s.A,1-s.B],[1-s.A,s.B],[s.A,1-s.B],[s.A,s.B]][k].join(" · ")} = <b class="r1">1</b>`},
+ head:["A","B","Y<sub>0</sub>","Y<sub>1</sub>","Y<sub>2</sub>","Y<sub>3</sub>"],
+ proof:[[`${sb("Y",sb("","k"))} is 1 only when AB equals k in binary`,"That is the job of a decoder: one output for each input number."],
+  [`${sb("Y",0)} = ${O("A")}·${O("B")}, ${sb("Y",1)} = ${O("A")}·B, ${sb("Y",2)} = A·${O("B")}, ${sb("Y",3)} = A·B`,"Each output is the minterm for its row: complement a variable where the row has a 0."],
+  ["Two NOT gates and four AND gates","The NOT gates make Ā and B̄ available. Each AND gate takes one version of A and one of B."],
+  [`${sb("Y",0)} + ${sb("Y",1)} + ${sb("Y",2)} + ${sb("Y",3)} = ${O("A")}(${O("B")} + B) + A(${O("B")} + B) = ${O("A")} + A = 1`,"So for every input, at least one output is 1, and because the minterms never overlap, exactly one is."]],
+ done:"n inputs give 2ⁿ outputs, one per minterm. A 2 to 4 decoder uses 2 NOT gates and 4 two-input AND gates."},
+
+"decoder-3x8":{nav:"3 to 8 decoder",name:"3 to 8 decoder",chip:"Binary to octal",ins:["A","B","C"],outs:["Y0","Y1","Y2","Y3","Y4","Y5","Y6","Y7"],h:570,
+ text:"Three input bits select one of eight output lines. A is the most significant bit, so ABC = 101 switches on Y5.",
+ note:"Because it produces all eight minterms of A, B and C, a 3 to 8 decoder plus an OR gate can build any 3-input function. For example, a full adder’s sum is Y1 + Y2 + Y4 + Y7.",
+ draw(){let s="";const V=["A","B","C"],rx={A:125,Ab:195,B:225,Bb:295,C:325,Cb:395},top={A:40,Ab:40,B:80,Bb:80,C:120,Cb:120},bot={},nots=[];
+  V.forEach((x,i)=>{const y=40+40*i,nx=145+100*i,ng=gate("not",nx,y-13,26,1,x+"b");nots.push(ng);
+   s+=W(`M100 ${y}H${nx}`,x)+DOT(rx[x],y,x)+W(`M${ng.out[0]} ${y}H${rx[x+"b"]}`,x+"b")});
+  const gs=[],bits=k=>[k>>2,(k>>1)&1,k&1];
+  for(let k=0;k<8;k++){const g_=gate("and",490,150+50*k,44,3,"Y"+k);gs.push(g_);bits(k).forEach((b,p)=>{const r=V[p]+(b?"":"b");bot[r]=Math.max(bot[r]||0,g_.pins[p][1])})}
+  gs.forEach((g_,k)=>bits(k).forEach((b,p)=>{const r=V[p]+(b?"":"b"),py=g_.pins[p][1];s+=W(`M${rx[r]} ${py}H490`,r)+(py<bot[r]?DOT(rx[r],py,r):"")}));
+  for(const r in rx)s+=W(`M${rx[r]} ${top[r]}V${bot[r]}`,r)+TXT(rx[r],bot[r]+20,r.length>1?r[0]+"̄":r,"pin","middle");
+  const mt=k=>[k>>2,(k>>1)&1,k&1].map((b,p)=>V[p]+(b?"":"̄")).join(" ");
+  return s+nots.map(x=>x.svg).join("")+gs.map(x=>x.svg).join("")+
+   gs.map((g_,k)=>W(`M534 ${172+50*k}H566`,"Y"+k)+LAMP("Y"+k,580,172+50*k,`${tl("Y"+k)} = ${mt(k)}`,14)).join("")+
+   SW("A",100,40)+SW("B",100,80)+SW("C",100,120)},
+ sig:v=>{const o={Ab:1-v.A,Bb:1-v.B,Cb:1-v.C};for(let k=0;k<8;k++)o["Y"+k]=+(4*v.A+2*v.B+v.C==k);return o},
+ eq:`<div class="big sm">${[0,1,2,3,4,5,6,7].map(k=>`Y<sub>${k}</sub> = ${[k>>2,(k>>1)&1,k&1].map((b,p)=>b?"ABC"[p]:O("ABC"[p])).join(" ")}`).join("<br>")}</div>`,
+ live:s=>{const k=4*s.A+2*s.B+s.C;return `Input ABC = ${s.A}${s.B}${s.C} = ${k}, so only ${sb("Y",k)} is 1.<br>${sb("Y",k)} = ${[k>>2,(k>>1)&1,k&1].map((b,p)=>b?"ABC"[p]:O("ABC"[p])).join(" · ")} = ${[k>>2,(k>>1)&1,k&1].map(()=>1).join(" · ")} = <b class="r1">1</b>`},
+ head:["A","B","C",...[0,1,2,3,4,5,6,7].map(k=>`Y<sub>${k}</sub>`)],
+ proof:[[`${sb("Y","k")} = minterm ${sb("m","k")} of A, B, C`,"Each output is 1 for exactly one input combination."],
+  [`${sb("Y",0)} = ${O("A")}·${O("B")}·${O("C")} … ${sb("Y",5)} = A·${O("B")}·C … ${sb("Y",7)} = A·B·C`,"Write the row in binary and put a bar over every variable that is 0. Row 5 = 101 gives A·B̄·C."],
+  ["Three NOT gates and eight 3-input AND gates","The six vertical rails carry A, Ā, B, B̄, C and C̄. Each AND gate taps one version of each variable."],
+  [`Any 3-variable function = OR of the decoder outputs for its 1-rows`,`For example, full adder S = Σm(1, 2, 4, 7) = ${sb("Y",1)} + ${sb("Y",2)} + ${sb("Y",4)} + ${sb("Y",7)}.`]],
+ done:"n = 3 inputs give 2³ = 8 outputs. The 74138 is a common 3 to 8 decoder chip, used to select one of eight memory chips or devices."},
+
+"binary-adder":{nav:"Binary adder",name:"4-bit binary adder",chip:"Ripple carry adder",ins:["A3","A2","A1","A0","B3","B2","B1","B0","C0"],h:350,static:1,
+ text:"Four full adders in a chain add two 4-bit numbers. The carry out of each stage feeds the carry in of the next, the same way you carry in long addition.",
+ note:"The carry has to ripple from FA0 to FA3 before the answer is final. Try 1111 + 0001 to see a carry travel the whole way.",
+ draw(){let s="";for(let i=0;i<4;i++){const bx=80+(3-i)*160;
+   s+=`<rect class="blk" x="${bx}" y="150" width="100" height="80"/>`+TXT(bx+50,198,tl("FA"+i),"bt","middle")+TXT(bx+30,168,"A","pin","middle")+TXT(bx+70,168,"B","pin","middle")+TXT(bx+50,224,"S","pin","middle")+
+    W(`M${bx+30} 58.8V150`,"A"+i)+W(`M${bx+70} 120.8V150`,"B"+i)+SWT("A"+i,bx+6,30)+SWT("B"+i,bx+46,92)+W(`M${bx+50} 230V284`,"S"+i)+LAMP("S"+i,bx+50,300,tl("S"+i),16,"b");
+   if(i<3)s+=W(`M${bx} 190H${bx-60}`,"C"+(i+1))+VAL("C"+(i+1),bx-30,182,"C"+(i+1)+" = ","middle")}
+  return s+W("M704 58.8V190H660","C0")+SWT("C0",680,30)+W("M80 190H40V284","C4")+VAL("C4",46,248,"C4 = ")+LAMP("C4",40,300,tl("C4"),16,"b")},
+ sig:v=>{const o={};let c=v.C0;for(let i=0;i<4;i++){const a=v["A"+i],b=v["B"+i],p=a^b;o["S"+i]=p^c;o["P"+i]=p;c=(a&b)|(c&p);o["C"+(i+1)]=c}return o},
+ eq:`<div class="big sm">S<sub>i</sub> = A<sub>i</sub> ${XO} B<sub>i</sub> ${XO} C<sub>i</sub><br>C<sub>i+1</sub> = A<sub>i</sub>·B<sub>i</sub> + C<sub>i</sub>·(A<sub>i</sub> ${XO} B<sub>i</sub>)</div><p class="small">The result has 5 bits: ${sb("C",4)} S<sub>3</sub> S<sub>2</sub> S<sub>1</sub> S<sub>0</sub>.</p>`,
+ live:s=>{const n=p=>[3,2,1,0].map(i=>s[p+i]).join(""),A=parseInt(n("A"),2),B=parseInt(n("B"),2),S=parseInt(s.C4+n("S"),2);
+  return `<pre class="sum">  carry ${[4,3,2,1].map(i=>s["C"+i]).join("")}${s.C0}
+      A  ${n("A")}   = ${String(A).padStart(2)}
+  +   B  ${n("B")}   = ${String(B).padStart(2)}${s.C0?"\n  + C0      1   =  1":""}
+  ─────────────────────
+  = ${s.C4} ${n("S")}      = ${S}</pre>`},
+ head:["Bit i","A<sub>i</sub>","B<sub>i</sub>","C<sub>i</sub>","S<sub>i</sub>","C<sub>i+1</sub>"],outFrom:4,sep:[1,4],
+ rows:(v,s)=>[0,1,2,3].map(i=>({set:null,cells:[String(i),v["A"+i],v["B"+i],i?s["C"+i]:v.C0,s["S"+i],s["C"+(i+1)]]})),
+ tth:"Column by column (live)",
+ auto(k){const ex=[[5,3,0],[9,6,0],[11,5,0],[15,1,0],[7,7,1],[12,10,0],[15,15,1]][k%7];for(let i=0;i<4;i++){v["A"+i]=(ex[0]>>i)&1;v["B"+i]=(ex[1]>>i)&1}v.C0=ex[2];upd()},
+ proof:[["Add one column at a time, starting with bit 0","Exactly like decimal long addition: add the digits and the carry, write the sum digit, carry to the left."],
+  [`S<sub>i</sub> = A<sub>i</sub> ${XO} B<sub>i</sub> ${XO} C<sub>i</sub>`,"Each column is a full adder, so its sum bit is the XOR of three bits."],
+  [`C<sub>i+1</sub> = A<sub>i</sub>·B<sub>i</sub> + C<sub>i</sub>·(A<sub>i</sub> ${XO} B<sub>i</sub>)`,"The full adder carry equation."],
+  [`${sb("C",1)} → FA1, ${sb("C",2)} → FA2, ${sb("C",3)} → FA3`,"The carry out of one stage is wired to the carry in of the next. This chain is why it is called a ripple carry adder."],
+  [`Result = ${sb("C",4)} ${sb("S",3)} ${sb("S",2)} ${sb("S",1)} ${sb("S",0)}`,"Two 4-bit numbers can add up to 15 + 15 + 1 = 31, which needs 5 bits, so the final carry is the fifth bit."],
+  ["Worst-case delay ≈ 4 × (carry delay of one full adder)","The last sum is only correct once the carry has rippled through every stage. Carry look-ahead adders (such as the 74283) compute the carries in parallel to save time."]],
+ done:`Chain n full adders to add two n-bit numbers. Set ${sb("C",0)} = 0 for plain addition.`},
+};
+
+/* sequential: SR flip-flop latch geometry is shared */
+const latch=(y3,y4,gx)=>{const a=gate("nand",gx,y3,80,2,"Q"),b=gate("nand",gx,y4,80,2,"Qb");return{a,b}};
+const S={
+"flip-flop":{nav:"Flip-flop (SR)",name:"SR flip-flop",chip:"One bit of memory",seq:1,ins:["S","R"],h:320,hl:"last",
+ text:"A flip-flop stores one bit. Two cross-coupled NAND gates (G3 and G4) hold their state on their own; G1 and G2 let S and R through only while the clock is 1.",
+ note:"S = 1 sets Q to 1, R = 1 resets Q to 0, and S = R = 0 keeps the stored bit. S = R = 1 is not allowed: try it and see why.",
+ draw(){const g1=gate("nand",230,60,80,2,"X1","G1"),g2=gate("nand",230,200,80,2,"X2","G2"),{a,b}=latch(80,180,420);
+  return W("M100 80H230","S")+W("M100 260H230","R")+W("M92 170H180","CLK")+DOT(180,170,"CLK")+W("M180 170V120H230","CLK")+W("M180 170V220H230","CLK")+
+   W("M310 100H420","X1")+W("M310 240H420","X2")+W("M502 120H653","Q")+W("M560 120V160H380V200H420","Q")+DOT(560,120,"Q")+
+   W("M502 220H653","Qb")+W("M580 220V180H400V140H420","Qb")+DOT(580,220,"Qb")+g1.svg+g2.svg+a.svg+b.svg+TXT(461,72,"G3","gn","middle")+TXT(461,278,"G4","gn","middle")+
+   VAL("X1",316,92,"X1 = ")+VAL("X2",316,232,"X2 = ")+CLKS(40,152)+SW("S",100,80)+SW("R",100,260)+LAMP("Q",670,120,"Q")+LAMP("Qb",670,220,"Q̄")},
+ init:()=>0,
+ sig:(v,q,c)=>{const X1=c?1-v.S:1,X2=c?1-v.R:1;return q=="X"?{X1,X2,Q:1,Qb:1}:q=="?"?{X1,X2,Q:"?",Qb:"?"}:{X1,X2,Q:q,Qb:1-q}},
+ next:(v,q)=>v.S&&v.R?"X":v.S?1:v.R?0:q,fall:q=>q=="X"?"?":q,
+ key:s=>`${s.Q}${s.S}${s.R}`,
+ eq:`<h2>Characteristic equation</h2><div class="big">${Qn1} = S + ${O("R")} · ${Qn}</div><p class="small">with the rule <b>S · R = 0</b> (S and R must never both be 1).</p>`,
+ live:s=>{const q=st;let t=`Now: Q = ${fmt(s.Q)}, Q̄ = ${fmt(s.Qb)}<br>`;
+  if(v.S&&v.R)return t+`Next pulse: S · R = 1, which breaks the rule.<p class="warn">Both NAND outputs go to 1 while the clock is high, so Q = Q̄. When the clock falls, the latch settles to 0 or 1 unpredictably, shown here as ?.</p>`;
+  if(q=="?"||q=="X")return t+`Next pulse: ${v.S?"sets Q = 1":v.R?"resets Q = 0":"Q stays unknown"}.`;
+  const n=v.S|((1-v.R)&q);return t+`Next pulse: ${Qn1} = ${v.S} + ${1-v.R} · ${q} = <b class="r${n}">${n}</b> (${v.S?"set":v.R?"reset":"hold"})`},
+ head:[Qn,"S","R",Qn1,"Action"],outFrom:3,
+ rows:()=>[0,1,2,3,4,5,6,7].map(k=>{const q=k>>2,S_=(k>>1)&1,R_=k&1,n=S_&&R_?"?":S_?1:R_?0:q;return{set:{q,S:S_,R:R_},cells:[q,S_,R_,n,S_&&R_?"Invalid":S_?"Set":R_?"Reset":"Hold"]}}),
+ auto(k){const p=[[1,0],[0,0],[0,1],[0,0],[1,0],[1,1],[0,1]][k%7];v.S=p[0];v.R=p[1];pulse()},
+ proof:[["CLK = 0: X1 = X2 = 1, so Q stays as it is",`A NAND with one input at 0 outputs 1. Then G3 gives Q = ${O("1 · Q̄")} = Q: the cross-coupled pair holds its bit.`],
+  [`CLK = 1: X1 = ${O("S")}, X2 = ${O("R")}`,`G1 = ${O("S · 1")} = ${O("S")}. A NAND with one input at 1 is a NOT gate.`],
+  [`Q = ${O(`${O("S")} · Q̄`)} = S + Q,&nbsp; Q̄ = ${O(`${O("R")} · Q`)} = R + Q̄`,"De Morgan. S = 1 forces Q = 1 (set); R = 1 forces Q̄ = 1, so Q = 0 (reset)."],
+  [`${Qn1} = 1 for ${Qn}SR = 010, 100, 110; don’t care for 011, 111`,"Read from the characteristic table. The invalid rows can be treated as don’t cares."],
+  [`K-map: S covers m2, m3, m6, m7; ${O("R")}·${Qn} covers m4, m6`,`So ${Qn1} = S + ${O("R")}·${Qn}.`],
+  ["S = R = 1 is forbidden","Both outputs become 1, so Q and Q̄ are no longer complements, and the final state after the clock falls depends on which gate is faster."]],
+ done:`${Qn1} = S + ${O("R")} · ${Qn}, with S · R = 0. The D and T flip-flops are built from this one by wiring S and R so that the forbidden input can never happen.`},
+
+"d-flip-flop":{nav:"D flip-flop",name:"D flip-flop",chip:"Q copies D on the clock",seq:1,ins:["D"],h:470,hl:"last",
+ text:"The D (data) flip-flop is an SR flip-flop with an inverter between S and R. On each clock pulse, Q takes the value of D. Between pulses, Q holds still whatever D does.",
+ note:"Change D without pressing the clock: Q doesn’t move. That is memory. A register is just several D flip-flops side by side.",
+ draw(){const g1=gate("nand",230,60,80,2,"X1","G1"),g2=gate("nand",230,200,80,2,"X2","G2"),n=gate("not",150,245,30,1,"Db"),{a,b}=latch(80,180,420);
+  return W("M100 80H230","D")+W("M130 80V260H150","D")+DOT(130,80,"D")+W(`M${n.out[0]} 260H230`,"Db")+TXT(200,252,"D̄","pin","middle")+n.svg+
+   W("M92 170H180","CLK")+DOT(180,170,"CLK")+W("M180 170V120H230","CLK")+W("M180 170V220H230","CLK")+
+   W("M310 100H420","X1")+W("M310 240H420","X2")+W("M502 120H653","Q")+W("M560 120V160H380V200H420","Q")+DOT(560,120,"Q")+
+   W("M502 220H653","Qb")+W("M580 220V180H400V140H420","Qb")+DOT(580,220,"Qb")+g1.svg+g2.svg+a.svg+b.svg+TXT(461,72,"G3","gn","middle")+TXT(461,278,"G4","gn","middle")+
+   VAL("X1",316,92,"X1 = ")+VAL("X2",316,232,"X2 = ")+CLKS(40,152)+SW("D",100,80)+LAMP("Q",670,120,"Q")+LAMP("Qb",670,220,"Q̄")+'<g id="wv4"></g>'},
+ init:()=>0,
+ sig:(v,q,c)=>({Db:1-v.D,X1:c?1-v.D:1,X2:c?v.D:1,Q:q,Qb:1-q}),
+ next:v=>v.D,key:s=>`${s.Q}${s.D}`,rec:()=>({D:v.D,Q:st}),
+ waves:()=>waves(350,hist,[{lab:"D",f:h=>h.D},{lab:"Q",f:h=>h.Q}]),
+ eq:`<h2>Characteristic equation</h2><div class="big">${Qn1} = D</div>`,
+ live:s=>`Now: D = ${s.D}, Q = ${s.Q}<br>Next pulse: ${Qn1} = D = <b class="r${s.D}">${s.D}</b>${s.D==s.Q?" (no change)":""}`,
+ head:[Qn,"D",Qn1],outFrom:2,
+ rows:()=>[0,1,2,3].map(k=>{const q=k>>1,d=k&1;return{set:{q,D:d},cells:[q,d,d]}}),
+ auto(k){v.D=[1,1,0,1,0,0,1,0][k%8];pulse()},
+ proof:[[`S = D, R = ${O("D")}`,"The inverter makes R the complement of S, so S = R = 1 can never happen."],
+  [`${Qn1} = S + ${O("R")}·${Qn} = D + ${O(O("D"))}·${Qn}`,"Substitute into the SR characteristic equation."],
+  [`${Qn1} = D + D·${Qn} = D·(1 + ${Qn})`,`Double negation, then take D out as a common factor.`],
+  [`${Qn1} = D`,`1 + ${Qn} = 1 (absorption law).`],
+  ["Gate check with CLK = 1",`X1 = ${O("D")}, X2 = D. If D = 1, X1 = 0 sets Q = 1. If D = 0, X2 = 0 resets Q = 0.`]],
+ done:`${Qn1} = D. The output is the input delayed until the next clock pulse, which is why it is also called a delay flip-flop.`},
+
+"t-flip-flop":{nav:"T flip-flop",name:"T flip-flop",chip:"Toggles on the clock",seq:1,ins:["T"],h:480,hl:"last",
+ text:"The T (toggle) flip-flop feeds Q and Q̄ back into its input NAND gates. With T = 1, every clock pulse flips Q. With T = 0, Q holds.",
+ note:"With T = 1, Q changes once every two clock pulses, so Q runs at half the clock frequency. Chain them and you get a counter.",
+ draw(){const g1=gate("nand",260,50,90,3,"X1","G1"),g2=gate("nand",260,210,90,3,"X2"),{a,b}=latch(60,210,440);
+  return W("M100 95H260","T")+W("M150 95V255H260","T")+DOT(150,95,"T")+W("M92 175H190","CLK")+DOT(190,175,"CLK")+W("M190 175V125H260","CLK")+W("M190 175V225H260","CLK")+
+   W("M349 95H400V80H440","X1")+W("M349 255H400V270H440","X2")+
+   W("M522 100H683","Q")+W("M560 100V165H410V230H440","Q")+DOT(560,100,"Q")+W("M620 100V330H230V285H260","Q")+DOT(620,100,"Q")+
+   W("M522 250H683","Qb")+W("M580 250V185H425V120H440","Qb")+DOT(580,250,"Qb")+W("M640 250V25H230V65H260","Qb")+DOT(640,250,"Qb")+
+   g1.svg+g2.svg+a.svg+b.svg+TXT(305,318,"G2","gn","middle")+TXT(481,52,"G3","gn","middle")+TXT(481,306,"G4","gn","middle")+
+   VAL("X1",352,86,"X1 = ")+VAL("X2",352,246,"X2 = ")+CLKS(40,157)+SW("T",100,95)+LAMP("Q",700,100,"Q")+LAMP("Qb",700,250,"Q̄")+'<g id="wv4"></g>'},
+ init:()=>0,
+ sig:(v,q,c)=>({X1:c?1-(v.T&(1-prev)):1,X2:c?1-(v.T&prev):1,Q:q,Qb:1-q}),
+ next:(v,q)=>v.T^q,key:s=>`${s.Q}${s.T}`,rec:()=>({T:v.T,Q:st}),
+ waves:()=>waves(370,hist,[{lab:"T",f:h=>h.T},{lab:"Q",f:h=>h.Q}]),
+ eq:`<h2>Characteristic equation</h2><div class="big">${Qn1} = T ${XO} ${Qn}</div><p class="small">Also written as <b>${Qn1} = T·${O(Qn)} + ${O("T")}·${Qn}</b></p>`,
+ live:s=>{const n=s.T^s.Q;return `Now: T = ${s.T}, Q = ${s.Q}<br>Next pulse: ${Qn1} = ${s.T} ${XO} ${s.Q} = <b class="r${n}">${n}</b> (${s.T?"toggle":"hold"})`},
+ head:[Qn,"T",Qn1],outFrom:2,
+ rows:()=>[0,1,2,3].map(k=>{const q=k>>1,t=k&1;return{set:{q,T:t},cells:[q,t,q^t]}}),
+ auto(k){v.T=[1,1,1,0,0,1,1,0][k%8];pulse()},
+ proof:[["T = 0: X1 = X2 = 1, so Q holds","Each input NAND has a 0 input, so its output is 1 and the latch keeps its bit."],
+  [`T = 1, Q = 0: X1 = ${O("1 · 1 · Q̄")} = ${O("1 · 1 · 1")} = 0`,"G1 sees Q̄ = 1, so it pulls the latch to Q = 1."],
+  [`T = 1, Q = 1: X2 = ${O("1 · 1 · Q")} = 0`,"G2 sees Q = 1, so it pulls the latch to Q = 0. Either way, Q flips."],
+  [`${Qn1} = 1 for (${Qn}, T) = (0, 1) and (1, 0)`,"Read from the characteristic table."],
+  [`${Qn1} = T·${O(Qn)} + ${O("T")}·${Qn} = T ${XO} ${Qn}`,"Those two minterms are the XOR pattern."],
+  ["Race-around: one toggle per pulse",`If the clock stays high longer than the gate delay, the feedback makes Q toggle again and again. Real T flip-flops are edge-triggered (or master–slave), so they toggle once per pulse, and that is what this simulator shows. It is the same as a JK flip-flop with J = K = T.`]],
+ done:`${Qn1} = T ${XO} ${Qn}. With T held at 1 the flip-flop divides the clock frequency by 2.`},
+
+"register":{nav:"Register",name:"4-bit register",chip:"Stores a 4-bit word",seq:1,ins:["D3","D2","D1","D0"],h:340,hl:"cur",static:1,
+ text:"A register is a row of D flip-flops sharing one clock. On each pulse, all four bits are loaded at once (parallel in, parallel out).",
+ note:"Set a pattern on D3 to D0, then press Clock pulse to store it. Change the switches again: the outputs keep the stored word until the next pulse.",
+ draw(){let s=W("M72 250H565","CLK")+CLKS(20,232);for(let j=0;j<4;j++){const i=3-j,bx=100+160*j;
+   s+=FFB(bx,140,"FF"+i,"D",0,"Q"+i)+W(`M${bx-26} 68.8V165H${bx}`,"D"+i)+SWT("D"+i,bx-50,40)+W(`M${bx-15} 250V208H${bx}`,"CLK")+(j<3?DOT(bx-15,250,"CLK"):"")+
+    W(`M${bx+90} 165H${bx+112}V274`,"Q"+i)+LAMP("Q"+i,bx+112,290,tl("Q"+i),16,"b")}return s},
+ init:()=>({Q3:0,Q2:0,Q1:0,Q0:0}),
+ sig:(v,q)=>q,next:v=>({Q3:v.D3,Q2:v.D2,Q1:v.D1,Q0:v.D0}),
+ onEdge(){log.push({d:[3,2,1,0].map(i=>v["D"+i]).join(""),q:[3,2,1,0].map(i=>st["Q"+i]).join("")});if(log.length>6)log.shift()},
+ key:()=>clk?"edge":"hold",
+ eq:`<h2>Equations</h2><div class="big sm">Q<sub>i</sub>(n+1) = D<sub>i</sub>&nbsp;&nbsp;for i = 0, 1, 2, 3</div><p class="small">The four bits are loaded together on the clock edge and held between edges.</p>`,
+ live:s=>{const d=[3,2,1,0].map(i=>v["D"+i]).join(""),q=[3,2,1,0].map(i=>s["Q"+i]).join("");return `Inputs D3–D0 = ${d}<br>Stored Q3–Q0 = <b class="r1">${q}</b> = ${parseInt(q,2)}<br>`+(d==q?`<span class="hint">Inputs and stored word match.</span>`:`<span class="hint">Press Clock pulse to load ${d}.</span>`)},
+ head:["CLK","D<sub>3</sub>","D<sub>2</sub>","D<sub>1</sub>","D<sub>0</sub>","Q<sub>3</sub>","Q<sub>2</sub>","Q<sub>1</sub>","Q<sub>0</sub>"],outFrom:5,
+ rows:()=>[{key:"hold",cells:["0, 1 or ↓","×","×","×","×","Q<sub>3</sub>","Q<sub>2</sub>","Q<sub>1</sub>","Q<sub>0</sub>"]},{key:"edge",cells:["↑","d<sub>3</sub>","d<sub>2</sub>","d<sub>1</sub>","d<sub>0</sub>","d<sub>3</sub>","d<sub>2</sub>","d<sub>1</sub>","d<sub>0</sub>"]}],
+ after:()=>`<p class="small">Clock pulses so far (newest last):</p>`+(log.length?`<table class="lg"><thead><tr><th>Pulse</th><th>D loaded</th><th>Q after</th></tr></thead><tbody>${log.map((l,j)=>`<tr><td>${j+1}</td><td>${l.d}</td><td>${l.q}</td></tr>`).join("")}</tbody></table>`:`<p class="hint">None yet. Press Clock pulse.</p>`),
+ auto(k){if(k%2==0){const p=["1011","0110","1111","0001","1010","0100"][(k/2)%6];[3,2,1,0].forEach((i,j)=>v["D"+i]=+p[j]);last=null;upd()}else pulse()},
+ proof:[["One D flip-flop per bit","A 4-bit register uses 4 flip-flops: FF3 holds the most significant bit, FF0 the least."],
+  ["All clock inputs are joined","Every flip-flop sees the same edge, so all four bits load at the same instant."],
+  [`Q<sub>i</sub>(n+1) = D<sub>i</sub>`,`From the D flip-flop equation ${Qn1} = D, applied to each bit.`],
+  ["Between edges: Q<sub>i</sub>(n+1) = Q<sub>i</sub>(n)","The flip-flops ignore D until the next clock edge, so the word is stored."],
+  ["Capacity: 2⁴ = 16 different words","n flip-flops store an n-bit word."],
+  ["Shift registers","If instead each Q drives the D of the next flip-flop, the bits move one place per pulse. That gives the SISO, SIPO and PISO shift registers."]],
+ done:"Q3 Q2 Q1 Q0 ← D3 D2 D1 D0 on every clock edge. This parallel-in, parallel-out (PIPO) register is how a CPU holds a number."},
+
+"counter":{nav:"Counter",name:"Counter",chip:"Counts clock pulses",seq:1,ins:["U"],iv:{U:1},h:440,hl:"cur",redraw:1,
+ text:"A counter is a register that steps through a fixed sequence of binary states, one step per clock pulse. Its MOD number is how many states it has before it wraps around.",
+ note:"Pick a MOD number below and flip Up off to count down. The highlighted arrow in the state diagram is the step the next pulse will take.",
+ draw(){const up=v.U,n=M;let s=CLKS(30,100)+W("M82 118H130","CLK")+`<rect class="blk" x="130" y="60" width="150" height="150"/><path class="ln" d="M130 110L142 118L130 126"/>`+
+   TXT(205,140,"MOD-"+n,"bt","middle")+TXT(205,160,"counter","pin","middle")+TXT(140,186,"Up","pin")+W("M110 181H130","U")+SW("U",110,181,"Up");
+  [[2,90],[1,135],[0,180]].forEach(([j,y])=>s+=TXT(272,y+5,"Q"+j,"pin","end")+W(`M280 ${y}H314`,"Q"+j)+LAMP("Q"+j,330,y,tl("Q"+j),16));
+  const cx=560,cy=145,Rr=105,P=k=>{const a=-Math.PI/2+2*Math.PI*k/n;return[cx+Rr*Math.cos(a),cy+Rr*Math.sin(a)]};
+  s+=TXT(420,22,"State diagram");
+  for(let k=0;k<n;k++){const t=up?(k+1)%n:(k-1+n)%n,[x1,y1]=P(k),[x2,y2]=P(t),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,off=n==2?7:0,nx=-uy*off,ny=ux*off;
+   const sx=x1+ux*25+nx,sy=y1+uy*25+ny,ex=x2-ux*27+nx,ey=y2-uy*27+ny,f=v=>v.toFixed(1);
+   s+=`<line class="arr" data-a="${k}" x1="${f(sx)}" y1="${f(sy)}" x2="${f(ex)}" y2="${f(ey)}"/><polygon class="ahd" data-a="${k}" points="${f(ex+ux*3)},${f(ey+uy*3)} ${f(ex-ux*7-uy*5)},${f(ey-uy*7+ux*5)} ${f(ex-ux*7+uy*5)},${f(ey-uy*7-ux*5)}"/>`}
+  for(let k=0;k<n;k++){const[x,y]=P(k);s+=`<circle class="node" data-n="${k}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22"/><text class="nt" x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" text-anchor="middle">${bin(k)}</text>`}
+  return s+'<g id="wv4"></g>'},
+ extra:()=>`<span class="nl">MOD</span><span class="seg" id="modsel">${[2,3,4,5,6,7,8].map(n=>`<button data-m="${n}" class="${n==M?"on":""}" aria-pressed="${n==M}">${n}</button>`).join("")}</span><span class="hint">Number of states before it wraps to 000</span>`,
+ init:()=>0,sig:(v,c)=>({Q0:c&1,Q1:(c>>1)&1,Q2:(c>>2)&1}),
+ next:(v,c)=>v.U?(c+1)%M:(c-1+M)%M,key:()=>String(st),rec:()=>st,
+ waves:()=>waves(290,hist,QROWS),
+ eq:`<h2>Equations</h2><div class="big sm">States with n flip-flops = 2<sup>n</sup><br>Flip-flops needed for MOD-M: n = ⌈log<sub>2</sub> M⌉<br>Up: next = (present + 1) mod M<br>Down: next = (present − 1) mod M</div>`,
+ live:s=>{const n=v.U?(st+1)%M:(st-1+M)%M;return `Count = ${bin(st)} = ${st}<br>Next pulse (${v.U?"up":"down"}): ${bin(n)} = <b class="r1">${n}</b><div class="small">MOD-${M} needs ${Math.max(1,Math.ceil(Math.log2(M)))} flip-flop${M>2?"s":""} (2<sup>${Math.max(1,Math.ceil(Math.log2(M)))}</sup> = ${2**Math.max(1,Math.ceil(Math.log2(M)))} ≥ ${M}). The pattern repeats every ${M} pulses, so it divides the clock frequency by ${M}.</div>`},
+ head:["Q<sub>2</sub>","Q<sub>1</sub>","Q<sub>0</sub>","Decimal","Next (up)","Next (down)"],outFrom:3,
+ rows:()=>Array.from({length:M},(_,k)=>({key:String(k),set:{q:k},cells:[(k>>2)&1,(k>>1)&1,k&1,String(k),bin((k+1)%M),bin((k-1+M)%M)]})),
+ tth:"Count sequence",preset:1,
+ auto(){pulse()},
+ proof:[["A counter is a sequence of states","Each clock pulse moves it to the next state. The states are stored in flip-flops."],
+  ["n flip-flops give 2ⁿ states","3 flip-flops count 000 to 111, which is 0 to 7, then wrap back to 000: a MOD-8 counter."],
+  ["MOD-M needs n = ⌈log₂ M⌉ flip-flops","MOD-6: 2² = 4 is too few and 2³ = 8 is enough, so 3 flip-flops. The unused states 110 and 111 are skipped by resetting at 6."],
+  ["Up: next = (present + 1) mod M; down: next = (present − 1) mod M","The mod makes the count wrap: in MOD-6 up, 5 → 0; in MOD-6 down, 0 → 5."],
+  ["Frequency division: f(Q0) = f/2, f(Q1) = f/4, f(Q2) = f/8","In a full binary counter each bit changes half as often as the bit below it (see the timing diagram)."],
+  ["Two ways to build one","Asynchronous (ripple): each flip-flop clocks the next. Synchronous: one shared clock plus gates. Both are in the next two lessons."]],
+ done:"A MOD-M counter has M states and divides the clock frequency by M. It needs ⌈log₂ M⌉ flip-flops."},
+
+"async-counter":{nav:"Asynchronous counter",name:"Asynchronous (ripple) counter",chip:"3-bit, counts up 0 to 7",seq:1,ins:[],h:430,hl:"cur",neg:1,
+ text:"Three T flip-flops with T = 1, so each one toggles on every falling edge at its clock input. Only FF0 gets the real clock; each Q then clocks the next flip-flop.",
+ note:"The bubble on each clock input means falling-edge triggered. Watch 011 → 100: the change ripples through one flip-flop at a time, passing through wrong values on the way.",
+ draw(){let s=CLKS(20,120)+W("M72 138H120","CLK");[130,340,550].forEach((bx,i)=>{s+=FFB(bx,70,"FF"+i,"T",1,"Q"+i)+'<path class="wire" d="M'+(bx-30)+' 95H'+bx+'"/>'+TXT(bx-36,100,"1","lbl","end")});
+  s+=W("M220 95H270V138H330","Q0")+W("M245 95V205","Q0")+DOT(245,95,"Q0")+LAMP("Q0",245,222,tl("Q0"),16,"b")+
+   W("M430 95H480V138H540","Q1")+W("M455 95V205","Q1")+DOT(455,95,"Q1")+LAMP("Q1",455,222,tl("Q1"),16,"b")+
+   W("M640 95H680V205","Q2")+LAMP("Q2",680,222,tl("Q2"),16,"b");return s+'<g id="wv4"></g>'},
+ init:()=>0,sig:(v,c)=>({Q0:c&1,Q1:(c>>1)&1,Q2:(c>>2)&1}),key:()=>String(st),rec:()=>st,
+ waves:()=>waves(290,hist,QROWS,1),
+ edge(){prev=st;clk=1;trail=[bin(st)];upd();setTimeout(()=>{clk=0;let b=0;const stp=()=>{const was=(st>>b)&1;st^=1<<b;trail.push(bin(st));upd();
+   if(was==1&&b<2){b++;setTimeout(stp,260)}else{hist.push(st);if(hist.length>16)hist.shift();busy=false;upd()}};stp()},350)},
+ eq:`<h2>Equations</h2><div class="big sm">Every flip-flop: T = 1, so ${Qn1} = ${O(Qn)}<br>f(Q0) = f/2,&nbsp; f(Q1) = f/4,&nbsp; f(Q2) = f/8<br>Total delay = n × t<sub>pd</sub></div>`,
+ live:s=>`Count Q2 Q1 Q0 = <b class="r1">${s.Q2}${s.Q1}${s.Q0}</b> = ${st}`+(trail.length>1?`<div class="small">Last pulse rippled through: <b>${trail.join(" → ")}</b>${trail.length>2?" (the middle values are brief glitches)":""}</div>`:`<div class="small">Press Clock pulse and watch the change ripple.</div>`),
+ head:["Pulses","Q<sub>2</sub>","Q<sub>1</sub>","Q<sub>0</sub>","Decimal"],outFrom:1,sep:[1,4],
+ rows:()=>[0,1,2,3,4,5,6,7].map(k=>({key:String(k),set:{q:k},cells:[String(k),(k>>2)&1,(k>>1)&1,k&1,String(k)]})),
+ tth:"Count sequence",preset:1,auto(){pulse()},
+ proof:[[`T = 1 for every flip-flop, so ${Qn1} = 1 ${XO} ${Qn} = ${O(Qn)}`,"Each flip-flop toggles on every active (falling) edge of its own clock input."],
+  ["FF0 is clocked by CLK","Q0 toggles on every pulse: 0, 1, 0, 1 … so f(Q0) = f/2."],
+  ["FF1 is clocked by Q0","Q1 toggles only when Q0 falls from 1 to 0, which is every second pulse: f(Q1) = f/4."],
+  ["FF2 is clocked by Q1","Q2 toggles when Q1 falls 1 → 0, every fourth pulse: f(Q2) = f/8."],
+  ["This is binary counting","When you add 1, a bit flips exactly when the bit below it goes from 1 to 0 (a carry). 011 + 1 = 100: Q0 falls, so Q1 flips; Q1 falls, so Q2 flips."],
+  ["Ripple delay = n × t<sub>pd</sub>","Each flip-flop waits for the one before it. 011 → 010 → 000 → 100 passes through two wrong values. For an n-bit ripple counter, the clock period must be longer than n·t<sub>pd</sub>."]],
+ done:"Q2 Q1 Q0 counts 000 to 111 and wraps. Simple to build (no extra gates), but slow and glitchy for many bits. Clocking from Q̄ instead of Q makes it count down."},
+
+"sync-counter":{nav:"Synchronous counter",name:"Synchronous counter",chip:"3-bit, all flip-flops clocked together",seq:1,ins:[],h:495,hl:"cur",
+ text:"All three T flip-flops share the same clock, so they change at the same instant. AND logic decides which ones toggle: a bit toggles only when every bit below it is 1.",
+ note:"Before you press Clock pulse, look at T0, T1 and T2: the flip-flops whose T is 1 are exactly the bits that will flip.",
+ draw(){const ag=gate("and",490,90,50,2,"T2");let s=CLKS(20,192)+W("M72 210H550","CLK");
+  [150,360,570].forEach((bx,i)=>{s+=FFB(bx,90,"FF"+i,"T",0,"Q"+i)+W(`M${bx-20} 210V158H${bx}`,"CLK")+(i<2?DOT(bx-20,210,"CLK"):"")});
+  s+='<path class="wire" d="M120 115H150"/>'+TXT(114,120,"1","lbl","end")+
+   W("M240 115H360","Q0")+W("M270 115V50H480V102.5H490","Q0")+DOT(270,115,"Q0")+W("M300 115V262","Q0")+DOT(300,115,"Q0")+LAMP("Q0",300,280,tl("Q0"),16,"b")+
+   W("M450 115H470V127.5H490","Q1")+W("M460 115V262","Q1")+DOT(460,115,"Q1")+LAMP("Q1",460,280,tl("Q1"),16,"b")+
+   ag.svg+W("M540 115H570","T2")+W("M660 115H700V262","Q2")+LAMP("Q2",700,280,tl("Q2"),16,"b")+
+   VAL("Q0",330,107,"T1 = ","middle")+VAL("T2",515,160,"T2 = ","middle")+TXT(135,105,"T0","sl","middle");
+  return s+'<g id="wv4"></g>'},
+ init:()=>0,sig:(v,c)=>({Q0:c&1,Q1:(c>>1)&1,Q2:(c>>2)&1,T2:c&(c>>1)&1}),
+ next:(v,c)=>(c+1)%8,key:()=>String(st),rec:()=>st,
+ waves:()=>waves(345,hist,QROWS),
+ eq:`<h2>Equations</h2><div class="big sm">T0 = 1<br>T1 = Q0<br>T2 = Q1 · Q0</div>`.replace(/([TQ])(\d)/g,"$1<sub>$2</sub>"),
+ live:s=>`Count Q2 Q1 Q0 = <b class="r1">${s.Q2}${s.Q1}${s.Q0}</b> = ${st}<br>T0 = 1, T1 = ${s.Q0}, T2 = ${s.Q1} · ${s.Q0} = ${s.T2}<div class="small">Next pulse flips ${["Q0",s.Q0?"Q1":"",s.T2?"Q2":""].filter(Boolean).join(", ")} → ${bin((st+1)%8)}</div>`.replace(/([TQ])(\d)/g,"$1<sub>$2</sub>"),
+ head:["Q<sub>2</sub>","Q<sub>1</sub>","Q<sub>0</sub>","Q<sub>2</sub><sup>+</sup>","Q<sub>1</sub><sup>+</sup>","Q<sub>0</sub><sup>+</sup>","T<sub>2</sub>","T<sub>1</sub>","T<sub>0</sub>"],outFrom:3,sep:[3,6],
+ rows:()=>[0,1,2,3,4,5,6,7].map(k=>{const n=(k+1)%8,t=k^n;return{key:String(k),set:{q:k},cells:[(k>>2)&1,(k>>1)&1,k&1,(n>>2)&1,(n>>1)&1,n&1,(t>>2)&1,(t>>1)&1,t&1]}}),
+ tth:"State table",preset:1,auto(){pulse()},
+ proof:[["All flip-flops share CLK","They all change on the same edge, so there is no ripple. Gates must decide which flip-flops toggle."],
+  [`T excitation: T = ${Qn} ${XO} ${Qn1}`,"T must be 1 when a bit has to change and 0 when it stays. This gives the T columns of the state table."],
+  [`${sb("T",0)} = 1`,"Q0 changes on every count, so its T column is all 1s."],
+  [`${sb("T",1)} = 1 for present states 001, 011, 101, 111 → ${sb("T",1)} = ${sb("Q",0)}`,"Those are exactly the rows with Q0 = 1 (K-map: one group of four)."],
+  [`${sb("T",2)} = 1 for 011 and 111 → ${sb("T",2)} = ${sb("Q",1)}·${sb("Q",0)}`,"Those are the rows with Q1 = Q0 = 1 (K-map: one group of two)."],
+  [`In general: ${sb("T",sb("","k"))} = ${sb("Q",0)}·${sb("Q",1)}·…·${sb("Q","k−1")}`,"Each bit toggles when all lower bits are 1. Delay is one flip-flop plus one AND gate, however many bits there are, so it runs faster than a ripple counter."]],
+ done:`${sb("T",0)} = 1, ${sb("T",1)} = ${sb("Q",0)}, ${sb("T",2)} = ${sb("Q",1)}·${sb("Q",0)}. Same count as the ripple counter, but every bit changes at once.`},
+};
+const ALL=Object.assign({},C,S);
+
+/* ---------- engine ---------- */
+function drawSvg(){$("sim4").setAttribute("viewBox",`0 0 760 ${T.h}`);$("sim4").innerHTML=T.draw()}
+function table(){const sg=cur();R=T.rows?T.rows(v,sg):combRows();const sep=new Set(T.sep||[T.outFrom??T.ins.length]),of=T.outFrom??T.ins.length;
+ $("tt4").className=T.static?"static":"";
+ $("tt4").innerHTML=`<thead><tr>${T.head.map((h,j)=>`<th class="${sep.has(j)?"sep":""}">${h}</th>`).join("")}</tr></thead><tbody>${R.map((r,k)=>{if(r.key==null)r.key=r.set&&r.set.q!=null?`${r.set.q}${T.ins.map(x=>r.set[x]).join("")}`:r.set?T.ins.map(x=>r.set[x]).join(""):"";
+  return `<tr data-i="${k}" data-key="${r.key}">${r.cells.map((c,j)=>`<td class="${sep.has(j)?"sep ":""}${j>=of&&(c===0||c===1)?"y"+c:""}">${c}</td>`).join("")}</tr>`}).join("")}</tbody>`;
+ $("after4").innerHTML=T.after?T.after():""}
+function combRows(){const n=T.ins.length,out=[];for(let r=0;r<1<<n;r++){const set={};T.ins.forEach((k,j)=>set[k]=(r>>(n-1-j))&1);const o=T.sig(set);out.push({set,cells:T.ins.map(k=>set[k]).concat(T.outs.map(k=>o[k]))})}return out}
+function upd(){const sg=cur();
+ $$("#sim4 [data-s]").forEach(e=>e.classList.toggle("on",sg[e.dataset.s]===1));
+ $$("#sim4 [data-t]").forEach(e=>e.textContent=(e.dataset.p||"")+fmt(sg[e.dataset.t]));
+ $$("#sim4 .sw").forEach(e=>e.setAttribute("aria-checked",!!v[e.dataset.k]));
+ if(T.redraw){$$("#sim4 [data-n]").forEach(e=>e.classList.toggle("on",+e.dataset.n==st));$$("#sim4 [data-a]").forEach(e=>e.classList.toggle("on",+e.dataset.a==st))}
+ if(T.waves&&$("wv4"))$("wv4").innerHTML=T.waves();
+ $("live4").innerHTML=T.live(sg);
+ if(T.rows&&T.static&&!T.seq)table();
+ if(T.after)$("after4").innerHTML=T.after();
+ const key=T.seq?(T.hl=="last"&&last!=null?last:T.key(sg)):T.ins.map(k=>v[k]).join("");
+ $$("#tt4 tbody tr").forEach(r=>r.classList.toggle("on",r.dataset.key===key));
+}
+function rec(){if(T.rec){hist.push(T.rec());if(hist.length>16)hist.shift()}}
+function pulse(){if(busy||!T.seq)return;busy=true;
+ if(T.edge)return T.edge();
+ prev=st;if(T.hl=="last")last=T.key(cur());clk=1;st=T.next(v,st);rec();T.onEdge&&T.onEdge();upd();
+ setTimeout(()=>{clk=0;if(T.fall)st=T.fall(st);busy=false;upd()},450)}
+function reset(){stop();clk=0;busy=false;last=null;log=[];trail=[];k4=0;v={};T.ins.forEach(k=>v[k]=0);Object.assign(v,T.iv||{});st=T.init?T.init():null;prev=st;hist=T.rec?[T.rec()]:[]}
+function stop(){clearInterval(tm);tm=null;$$(".play4").forEach(x=>x.textContent="▶ Auto-play")}
+function tick(){if(T.auto)T.auto(k4++);else{const r=R[k4++%R.length];Object.assign(v,r.set);upd()}}
+function pick(i){const r=R[i];if(!r||!r.set||busy)return;stop();
+ if(T.preset){st=r.set.q;trail=[];hist=T.rec?[T.rec()]:[];upd();return}
+ if(T.seq){st=r.set.q;Object.assign(v,r.set);delete v.q;last=null;upd();pulse();return}
+ Object.assign(v,r.set);upd()}
+function show(id){
+ TID=ALL[id]?id:"half-adder";T=ALL[TID];chrome(4);stopAll();document.documentElement.style.setProperty("--acc",T.seq?"#e8590c":"#2f9e44");
+ $("nav4a").innerHTML=`<span class="nl">Combinational</span>`+Object.keys(C).map(k=>`<a href="#m4-${k}" class="${k==TID?"on":""}">${C[k].nav}</a>`).join("");
+ $("nav4b").innerHTML=`<span class="nl">Sequential</span>`+Object.keys(S).map(k=>`<a href="#m4-${k}" class="${k==TID?"on":""}">${S[k].nav}</a>`).join("");
+ $("hero4").innerHTML=`<div class="row"><h2>${T.name}</h2><span class="chip">${T.chip}</span></div><p>${T.text}</p><p class="note">💡 ${T.note}</p>`;
+ $("eq4").innerHTML=(T.eq.startsWith("<h2>")?T.eq:`<h2>Equations</h2>${T.eq}`)+`<p class="small">${T.seq?"Right now:":"With the current inputs:"}</p><div class="live" id="live4"></div>`;
+ $("tth4").textContent=T.tth||(T.seq?"Characteristic table":"Truth table");
+ $$(".clk4").forEach(b=>b.hidden=!T.seq);
+ $("hint4").textContent=T.seq?(T.ins.length?"Set the inputs, then press Clock pulse or tap CLK.":"Press Clock pulse or tap CLK to count."):T.static?"Tap the switches to set A and B.":"Tap a switch or a truth table row.";
+ $("tip4").textContent=T.seq?(T.preset?"Tap a row to preset the counter to that state.":T.rows&&!T.static?"Tap a row to load Qn and the inputs, then send one pulse.":""):T.static?"":"Tap a row to load its inputs.";
+ $("extra4").innerHTML=T.extra?T.extra():"";$("extra4").hidden=!T.extra;
+ $("proof4").innerHTML=`<h2>Equation step by step</h2><div class="proof">${pr(T.proof)}</div><p class="done"><b>Therefore</b> ${T.done}</p>`;
+ reset();drawSvg();table();upd();const mm=$("main4");mm.classList.remove("fade");void mm.offsetWidth;mm.classList.add("fade")}
+/* events */
+const flipK=k=>{if(!(k in v))return;stop();v[k]^=1;last=null;if(T.redraw)drawSvg();upd()};
+$("sim4").addEventListener("click",e=>{const w=e.target.closest(".sw");if(w)return flipK(w.dataset.k);if(e.target.closest(".clk")){stop();pulse()}});
+$("sim4").addEventListener("keydown",e=>{if(e.key!=" "&&e.key!="Enter")return;const w=e.target.closest(".sw"),c=e.target.closest(".clk");if(w||c){e.preventDefault();w?flipK(w.dataset.k):(stop(),pulse())}});
+$("tt4").addEventListener("click",e=>{const r=e.target.closest("tr[data-i]");if(r)pick(+r.dataset.i)});
+$$(".play4").forEach(b=>b.onclick=()=>{if(tm)return stop();$$(".play4").forEach(x=>x.textContent="❚❚ Pause");tick();tm=setInterval(tick,1400)});
+$$(".clk4").forEach(b=>b.onclick=()=>{stop();pulse()});
+$$(".reset4").forEach(b=>b.onclick=()=>{reset();if(T.redraw)drawSvg();table();upd()});
+$("extra4").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b||busy)return;M=+b.dataset.m;reset();$("extra4").innerHTML=T.extra();drawSvg();table();upd()});
+return{show,stop};
+})();
+function show4(id){M4mod.show(id)}
+function stop4(){M4mod.stop()}
+function route(){const p=location.hash.slice(1).split("-");p[0]=="m4"?show4(p.slice(1).join("-")):p[0]=="uni"?show2(p[1],p[2]):p[0]=="alg"?show3(p[1]):show(p[0])}
+$("nav").innerHTML=G.map(x=>`<a href="#${x.id}">${x.name}</a>`).join("");
+const flip=L=>{stop();s[L.toLowerCase()]^=1;upd()};
+["sim","sim2"].forEach(z=>{$(z).addEventListener("click",e=>{const k=e.target.closest(".sw");if(k)flip(k.dataset.k)});$(z).addEventListener("keydown",e=>{const k=e.target.closest(".sw");if(k&&(e.key==" "||e.key=="Enter")){e.preventDefault();flip(k.dataset.k)}})});
+
+["tt","tt2"].forEach(z=>$(z).addEventListener("click",e=>{const r=e.target.closest("tr[data-a]");if(r){stop();s.a=+r.dataset.a;s.b=+r.dataset.b;upd()}}));
+$$(".play").forEach(b=>b.onclick=()=>{if(tm)return stop();$$(".play").forEach(x=>x.textContent="❚❚ Pause");step();tm=setInterval(step,1400)});
+$$(".reset").forEach(b=>b.onclick=()=>{stop();i=0;s={a:0,b:0};upd()});
+addEventListener("hashchange",route);
+route();
+</script>
+</body>
+</html>
